@@ -1,9 +1,9 @@
 ---
 title: "Journal (reproducible report)"
-author: "Joschka Schwarz"
+author: "Mimololorun Aiyelari"
 date: "2020-11-05"
 output:
-  html_document:
+  html_document: 
     toc: true
     toc_float: true
     collapsed: false
