@@ -16,11 +16,10 @@ output:
 knitr::opts_chunk$set(message=FALSE,warning=FALSE, cache=TRUE)
 ```
 
-**IMPORTANT:** You can delete everything in here and start fresh. You might want to start by not deleting anything above this line until you know what that stuff is doing.
 
-This is an `.Rmd` file. It is plain text with special features. Any time you write just like this, it will be compiled to normal text in the website. If you put a \# in front of your text, it will create a top level-header.
 
-# My first post: 
+# Challenge 1
+## Introduction to the Tidyverse
 ```{r}
 #Challenge 1 -Introduction to the Tidyverse ----
 
@@ -80,7 +79,7 @@ bike_orderlines_wrangled_tbl <- bike_orderlines_joined_tbl %>%
   set_names(names(.) %>% str_replace_all("\\.", "_"))
 
 #Check location multiple features (State and city)
-bike_orderlines_wrangled_tbl$location
+#bike_orderlines_wrangled_tbl$location
 
 #Probably unecessary code but also helps to see just the location column
 bike_orderlines_wrangled_tbl %>% 
@@ -213,9 +212,8 @@ bike_orderlines_wrangled_tbl %>%
 
 Last compiled: `r Sys.Date()`
 
-Notice that whatever you define as a top level header, automatically gets put into the table of contents bar on the left. 
 
-## Second level header
+# Challenge 2
 
 You can add more headers by adding more hashtags. These won't be put into the table of contents
 
