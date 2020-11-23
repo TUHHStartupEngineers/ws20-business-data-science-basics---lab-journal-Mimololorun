@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Mimololorun Aiyelari" />
+
+<meta name="date" content="2020-11-05" />
+
+<title>Journal (reproducible report)</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/anchor-sections-1.0/anchor-sections.css" rel="stylesheet" />
+<script src="site_libs/anchor-sections-1.0/anchor-sections.js"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">MyLabJournal</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="journal.html">Journal</a>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Class notes
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="dictionary.html">Dictionary</a>
+    </li>
+    <li>
+      <a href="data_wrangling.html">Data Wrangling</a>
+    </li>
+    <li>
+      <a href="ggplot_graphs.html">ggplot graphs</a>
+    </li>
+    <li>
+      <a href="machine_learning.html">machine learning</a>
+    </li>
+  </ul>
+</li>
+<li>
+  <a href="links.html">Links</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">Journal (reproducible report)</h1>
+<h4 class="author">Mimololorun Aiyelari</h4>
+<h4 class="date">2020-11-05</h4>
+
+</div>
+
+
+<p><strong>IMPORTANT:</strong> You can delete everything in here and start fresh. You might want to start by not deleting anything above this line until you know what that stuff is doing.</p>
+<p>This is an <code>.Rmd</code> file. It is plain text with special features. Any time you write just like this, it will be compiled to normal text in the website. If you put a # in front of your text, it will create a top level-header.</p>
+<div id="my-first-post-introductionto-the-tidyverse-sales_analysis" class="section level1">
+<h1><span class="header-section-number">1</span> My first post-Introductionto the Tidyverse (Sales_Analysis)</h1>
+<p>Last compiled: 2020-11-23</p>
+</div>
+<div id="data-science-at-tuhh" class="section level1">
+<h1><span class="header-section-number">2</span> Data Science at TUHH ——————————————————</h1>
+</div>
+<div id="sales-analysis--" class="section level1">
+<h1><span class="header-section-number">3</span> SALES ANALYSIS —-</h1>
+</div>
+<div id="load-libraries--" class="section level1">
+<h1><span class="header-section-number">4</span> 1.0 Load libraries —-</h1>
+<p>library(tidyverse) # library(tibble) –&gt; is a modern re-imagining of the data frame # library(readr) –&gt; provides a fast and friendly way to read rectangular data like csv # library(dplyr) –&gt; provides a grammar of data manipulation # library(magrittr) –&gt; offers a set of operators which make your code more readable (pipe operator) # library(tidyr) –&gt; provides a set of functions that help you get to tidy data # library(stringr) –&gt; provides a cohesive set of functions designed to make working with strings as easy as possible # library(ggplot2) –&gt; graphics</p>
+<div id="attaching-packages-tidyverse-1.3.0" class="section level2">
+<h2><span class="header-section-number">4.1</span> ── Attaching packages ──────────────────────────────── tidyverse 1.3.0 ──</h2>
+</div>
+<div id="ggplot2-3.3.0-purrr-0.3.4" class="section level2">
+<h2><span class="header-section-number">4.2</span> ✓ ggplot2 3.3.0 ✓ purrr 0.3.4</h2>
+</div>
+<div id="tibble-3.0.1-dplyr-0.8.5" class="section level2">
+<h2><span class="header-section-number">4.3</span> ✓ tibble 3.0.1 ✓ dplyr 0.8.5</h2>
+</div>
+<div id="tidyr-1.0.2-stringr-1.4.0" class="section level2">
+<h2><span class="header-section-number">4.4</span> ✓ tidyr 1.0.2 ✓ stringr 1.4.0</h2>
+</div>
+<div id="readr-1.3.1-forcats-0.5.0" class="section level2">
+<h2><span class="header-section-number">4.5</span> ✓ readr 1.3.1 ✓ forcats 0.5.0</h2>
+</div>
+<div id="conflicts-tidyverse_conflicts" class="section level2">
+<h2><span class="header-section-number">4.6</span> ── Conflicts ───────────────────────────────────────── tidyverse_conflicts() ──</h2>
+</div>
+<div id="x-dplyrfilter-masks-statsfilter" class="section level2">
+<h2><span class="header-section-number">4.7</span> x dplyr::filter() masks stats::filter()</h2>
+</div>
+<div id="x-dplyrlag-masks-statslag" class="section level2">
+<h2><span class="header-section-number">4.8</span> x dplyr::lag() masks stats::lag()</h2>
+</div>
+</div>
+<div id="excel-files" class="section level1">
+<h1><span class="header-section-number">5</span> Excel Files</h1>
+<p>library(readxl)</p>
+</div>
+<div id="importing-files--" class="section level1">
+<h1><span class="header-section-number">6</span> 2.0 Importing Files —-</h1>
+</div>
+<div id="a-good-convention-is-to-use-the-file-name-and-suffix-it-with-tbl-for-the-data-structure-tibble" class="section level1">
+<h1><span class="header-section-number">7</span> A good convention is to use the file name and suffix it with tbl for the data structure tibble</h1>
+<p>bikes_tbl &lt;- read_excel(path = “~/Documents/Github/Business Data Basics/DS_101/00_data/01_bike_sales/01_raw_data/bikes.xlsx”) orderlines_tbl &lt;- read_excel(“~/Documents/Github/Business Data Basics/DS_101/00_data/01_bike_sales/01_raw_data/orderlines.xlsx”)</p>
+</div>
+<div id="not-necessary-for-this-analysis-but-for-the-sake-of-completeness" class="section level1">
+<h1><span class="header-section-number">8</span> Not necessary for this analysis, but for the sake of completeness</h1>
+<p>bikeshops_tbl &lt;- read_excel(“~/Documents/Github/Business Data Basics/DS_101/00_data/01_bike_sales/01_raw_data/bikeshops.xlsx”)</p>
+</div>
+<div id="examining-data--" class="section level1">
+<h1><span class="header-section-number">9</span> 3.0 Examining Data —-</h1>
+</div>
+<div id="method-1-print-it-to-the-console" class="section level1">
+<h1><span class="header-section-number">10</span> Method 1: Print it to the console</h1>
+<p>orderlines_tbl</p>
+</div>
+<div id="a-tibble-15644-x-7" class="section level1">
+<h1><span class="header-section-number">11</span> A tibble: 15,644 x 7</h1>
+<div id="order.id-order.line-order.date-customer.id-product.id-quantity" class="section level2">
+<h2><span class="header-section-number">11.1</span> …1 order.id order.line order.date customer.id product.id quantity</h2>
+</div>
+<div id="section" class="section level2">
+<h2><span class="header-section-number">11.2</span> <chr> <dbl> <dbl> <dttm> <dbl> <dbl> <dbl></h2>
+</div>
+<div id="section-1" class="section level2">
+<h2><span class="header-section-number">11.3</span> 1 1 1 1 2015-01-07 00:00:00 2 2681 1</h2>
+</div>
+<div id="section-2" class="section level2">
+<h2><span class="header-section-number">11.4</span> 2 2 1 2 2015-01-07 00:00:00 2 2411 1</h2>
+</div>
+<div id="section-3" class="section level2">
+<h2><span class="header-section-number">11.5</span> 3 3 2 1 2015-01-10 00:00:00 10 2629 1</h2>
+</div>
+<div id="section-4" class="section level2">
+<h2><span class="header-section-number">11.6</span> 4 4 2 2 2015-01-10 00:00:00 10 2137 1</h2>
+</div>
+<div id="section-5" class="section level2">
+<h2><span class="header-section-number">11.7</span> 5 5 3 1 2015-01-10 00:00:00 6 2367 1</h2>
+</div>
+<div id="section-6" class="section level2">
+<h2><span class="header-section-number">11.8</span> 6 6 3 2 2015-01-10 00:00:00 6 1973 1</h2>
+</div>
+<div id="section-7" class="section level2">
+<h2><span class="header-section-number">11.9</span> 7 7 3 3 2015-01-10 00:00:00 6 2422 1</h2>
+</div>
+<div id="section-8" class="section level2">
+<h2><span class="header-section-number">11.10</span> 8 8 3 4 2015-01-10 00:00:00 6 2655 1</h2>
+</div>
+<div id="section-9" class="section level2">
+<h2><span class="header-section-number">11.11</span> 9 9 3 5 2015-01-10 00:00:00 6 2247 1</h2>
+</div>
+<div id="section-10" class="section level2">
+<h2><span class="header-section-number">11.12</span> 10 10 4 1 2015-01-11 00:00:00 22 2408 1</h2>
+</div>
+<div id="with-15634-more-rows" class="section level2">
+<h2><span class="header-section-number">11.13</span> # … with 15,634 more rows</h2>
+</div>
+</div>
+<div id="method-2-clicking-on-the-file-in-the-environment-tab-or-run-vieworderlines_tbl-there-you-can-play-around-with-the-filter." class="section level1">
+<h1><span class="header-section-number">12</span> Method 2: Clicking on the file in the environment tab (or run View(orderlines_tbl)) There you can play around with the filter.</h1>
+</div>
+<div id="method-3-glimpse-function.-especially-helpful-for-wide-data-data-with-many-columns" class="section level1">
+<h1><span class="header-section-number">13</span> Method 3: glimpse() function. Especially helpful for wide data (data with many columns)</h1>
+<p>glimpse(orderlines_tbl) glimpse(bikes_tbl) glimpse(bikeshops_tbl) ## Rows: 15,644 ## Columns: 7 ## $ …1 <chr> “1”, “2”, “3”, “4”, “5”, “6”, “7”, “8”, "… ## $ order.id <dbl> 1, 1, 2, 2, 3, 3, 3, 3, 3, 4, 5, 5, 5, 5,… ## $ order.line <dbl> 1, 2, 1, 2, 1, 2, 3, 4, 5, 1, 1, 2, 3, 4,… ## $ order.date <dttm> 2015-01-07, 2015-01-07, 2015-01-10, 2015… ## $ customer.id <dbl> 2, 2, 10, 10, 6, 6, 6, 6, 6, 22, 8, 8, 8,… ## $ product.id <dbl> 2681, 2411, 2629, 2137, 2367, 1973, 2422,… ## $ quantity <dbl> 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1,…</p>
+</div>
+<div id="joining-data--" class="section level1">
+<h1><span class="header-section-number">14</span> 4.0 Joining Data —-</h1>
+</div>
+<div id="by-automatically-detecting-a-common-column-if-any" class="section level1">
+<h1><span class="header-section-number">15</span> by automatically detecting a common column, if any …</h1>
+<p>left_join(orderlines_tbl, bikes_tbl)</p>
+<div id="error-by-must-be-supplied-when-x-and-y-have-no-common-variables." class="section level2">
+<h2><span class="header-section-number">15.1</span> Error: <code>by</code> must be supplied when <code>x</code> and <code>y</code> have no common variables.</h2>
+</div>
+</div>
+<div id="if-the-data-has-no-common-column-name-you-can-provide-each-column-name-in-the-by-argument.-for-example-by-ca-b-will-match-x.a-to-y.b.-the-order-of-the-columns-has-to-match-the-order-of-the-tibbles." class="section level1">
+<h1><span class="header-section-number">16</span> If the data has no common column name, you can provide each column name in the “by” argument. For example, by = c(“a” = “b”) will match x.a to y.b. The order of the columns has to match the order of the tibbles).</h1>
+<p>left_join(orderlines_tbl, bikes_tbl, by = c(“product.id” = “bike.id”))</p>
+<div id="a-tibble-15644-x-15" class="section level2">
+<h2><span class="header-section-number">16.1</span> # A tibble: 15,644 x 15</h2>
+</div>
+<div id="order.id-order.line-order.date-customer.id" class="section level2">
+<h2><span class="header-section-number">16.2</span> …1 order.id order.line order.date customer.id</h2>
+</div>
+<div id="section-11" class="section level2">
+<h2><span class="header-section-number">16.3</span> <chr> <dbl> <dbl> <dttm> <dbl></h2>
+</div>
+<div id="section-12" class="section level2">
+<h2><span class="header-section-number">16.4</span> 1 1 1 1 2015-01-07 00:00:00 2</h2>
+</div>
+<div id="section-13" class="section level2">
+<h2><span class="header-section-number">16.5</span> 2 2 1 2 2015-01-07 00:00:00 2</h2>
+</div>
+<div id="section-14" class="section level2">
+<h2><span class="header-section-number">16.6</span> 3 3 2 1 2015-01-10 00:00:00 10</h2>
+</div>
+<div id="section-15" class="section level2">
+<h2><span class="header-section-number">16.7</span> 4 4 2 2 2015-01-10 00:00:00 10</h2>
+</div>
+<div id="section-16" class="section level2">
+<h2><span class="header-section-number">16.8</span> 5 5 3 1 2015-01-10 00:00:00 6</h2>
+</div>
+<div id="section-17" class="section level2">
+<h2><span class="header-section-number">16.9</span> 6 6 3 2 2015-01-10 00:00:00 6</h2>
+</div>
+<div id="section-18" class="section level2">
+<h2><span class="header-section-number">16.10</span> 7 7 3 3 2015-01-10 00:00:00 6</h2>
+</div>
+<div id="section-19" class="section level2">
+<h2><span class="header-section-number">16.11</span> 8 8 3 4 2015-01-10 00:00:00 6</h2>
+</div>
+<div id="section-20" class="section level2">
+<h2><span class="header-section-number">16.12</span> 9 9 3 5 2015-01-10 00:00:00 6</h2>
+</div>
+<div id="section-21" class="section level2">
+<h2><span class="header-section-number">16.13</span> 10 10 4 1 2015-01-11 00:00:00 22</h2>
+</div>
+<div id="with-15634-more-rows-and-10-more-variables" class="section level2">
+<h2><span class="header-section-number">16.14</span> # … with 15,634 more rows, and 10 more variables:</h2>
+</div>
+<div id="product.id-quantity-model" class="section level2">
+<h2><span class="header-section-number">16.15</span> # product.id <dbl>, quantity <dbl>, model <chr>,</h2>
+</div>
+<div id="model.year-frame.material-weight" class="section level2">
+<h2><span class="header-section-number">16.16</span> # model.year <dbl>, frame.material <chr>, weight <dbl>,</h2>
+</div>
+<div id="price-category-gender-url" class="section level2">
+<h2><span class="header-section-number">16.17</span> # price <dbl>, category <chr>, gender <chr>, url <chr></h2>
+</div>
+</div>
+<div id="chaining-commands-with-the-pipe-and-assigning-it-to-order_items_joined_tbl" class="section level1">
+<h1><span class="header-section-number">17</span> Chaining commands with the pipe and assigning it to order_items_joined_tbl</h1>
+<p>bike_orderlines_joined_tbl &lt;- orderlines_tbl %&gt;% left_join(bikes_tbl, by = c(“product.id” = “bike.id”)) %&gt;% left_join(bikeshops_tbl, by = c(“customer.id” = “bikeshop.id”))</p>
+</div>
+<div id="examine-the-results-with-glimpse" class="section level1">
+<h1><span class="header-section-number">18</span> Examine the results with glimpse()</h1>
+<p>bike_orderlines_joined_tbl %&gt;% glimpse()</p>
+<div id="rows-15644" class="section level2">
+<h2><span class="header-section-number">18.1</span> Rows: 15,644</h2>
+</div>
+<div id="columns-19" class="section level2">
+<h2><span class="header-section-number">18.2</span> Columns: 19</h2>
+</div>
+<div id="section-22" class="section level2">
+<h2><span class="header-section-number">18.3</span> $ …1 <chr> “1”, “2”, “3”, “4”, “5”, “6”, “7”, …</h2>
+</div>
+<div id="order.id-1-1-2-2-3-3-3-3-3-4-5-5" class="section level2">
+<h2><span class="header-section-number">18.4</span> $ order.id <dbl> 1, 1, 2, 2, 3, 3, 3, 3, 3, 4, 5, 5,…</h2>
+</div>
+<div id="order.line-1-2-1-2-1-2-3-4-5-1-1-2" class="section level2">
+<h2><span class="header-section-number">18.5</span> $ order.line <dbl> 1, 2, 1, 2, 1, 2, 3, 4, 5, 1, 1, 2,…</h2>
+</div>
+<div id="order.date-2015-01-07-2015-01-07-2015-01-10" class="section level2">
+<h2><span class="header-section-number">18.6</span> $ order.date <dttm> 2015-01-07, 2015-01-07, 2015-01-10…</h2>
+</div>
+<div id="customer.id-2-2-10-10-6-6-6-6-6-22-8" class="section level2">
+<h2><span class="header-section-number">18.7</span> $ customer.id <dbl> 2, 2, 10, 10, 6, 6, 6, 6, 6, 22, 8,…</h2>
+</div>
+<div id="product.id-2681-2411-2629-2137-2367-1973" class="section level2">
+<h2><span class="header-section-number">18.8</span> $ product.id <dbl> 2681, 2411, 2629, 2137, 2367, 1973,…</h2>
+</div>
+<div id="quantity-1-1-1-1-1-1-1-1-1-1-1-2" class="section level2">
+<h2><span class="header-section-number">18.9</span> $ quantity <dbl> 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2,…</h2>
+</div>
+<div id="model-spectral-cf-7-wmn-ultimate-cf-s-model.year-2021-2020-2021-2019-2020-2020-frame.material-carboncarboncarboncarb" class="section level2">
+<h2><span class="header-section-number">18.10</span> $ model <chr> “Spectral CF 7 WMN”, “Ultimate CF S… ## $ model.year <dbl> 2021, 2020, 2021, 2019, 2020, 2020,… ## $ frame.material <chr>”carbon“,”carbon“,”carbon“,”carb…</h2>
+</div>
+<div id="weight-13.80-7.44-14.06-8.80-11.50-8." class="section level2">
+<h2><span class="header-section-number">18.11</span> $ weight <dbl> 13.80, 7.44, 14.06, 8.80, 11.50, 8.…</h2>
+</div>
+<div id="price-3119-5359-2729-1749-1219-1359" class="section level2">
+<h2><span class="header-section-number">18.12</span> $ price <dbl> 3119, 5359, 2729, 1749, 1219, 1359,…</h2>
+</div>
+<div id="category-mountain---trail---spectral-roa-gender-femaleunisexunisexunis" class="section level2">
+<h2><span class="header-section-number">18.13</span> $ category <chr> “Mountain - Trail - Spectral”, “Roa… ## $ gender <chr>”female“,”unisex“,”unisex“,”unis…</h2>
+</div>
+<div id="url-httpswww.canyon.comen-demount-name-alexanderadalexanderadwitt" class="section level2">
+<h2><span class="header-section-number">18.14</span> $ url <chr> “<a href="https://www.canyon.com/en-de/mount" class="uri">https://www.canyon.com/en-de/mount</a>… ## $ name <chr>”AlexandeRad“,”AlexandeRad“,”WITT…</h2>
+</div>
+<div id="location-hamburg-hamburg-hamburg-hambu" class="section level2">
+<h2><span class="header-section-number">18.15</span> $ location <chr> “Hamburg, Hamburg”, "Hamburg, Hambu…</h2>
+</div>
+<div id="lat-53.57532-53.57532-53.07379-53.07" class="section level2">
+<h2><span class="header-section-number">18.16</span> $ lat <dbl> 53.57532, 53.57532, 53.07379, 53.07…</h2>
+</div>
+<div id="lng-10.015340-10.015340-8.826754-8.8" class="section level2">
+<h2><span class="header-section-number">18.17</span> $ lng <dbl> 10.015340, 10.015340, 8.826754, 8.8…</h2>
+</div>
+</div>
+<div id="wrangling-data--" class="section level1">
+<h1><span class="header-section-number">19</span> 5.0 Wrangling Data —-</h1>
+<p>bike_orderlines_joined_tbl$category</p>
+<p>bike_orderlines_joined_tbl %&gt;% select(category) %&gt;% filter(str_detect(category, “^Mountain”)) %&gt;% unique() ## # A tibble: 10 x 1 ## category<br />
+## <chr><br />
+## 1 Mountain - Trail - Spectral<br />
+## 2 Mountain - Trail - Neuron<br />
+## 3 Mountain - Dirt Jump - Stitched<br />
+## 4 Mountain - Enduro - Torque<br />
+## 5 Mountain - Trail - Grand Canyon<br />
+## 6 Mountain - Cross-Country - Lux<br />
+## 7 Mountain - Enduro - Strive<br />
+## 8 Mountain - Downhill - Sender<br />
+## 9 Mountain - Fat Bikes - Dude<br />
+## 10 Mountain - Cross-Country - Exceed</p>
+</div>
+<div id="all-actions-are-chained-with-the-pipe-already.-you-can-perform-each-step-separately-and-use-glimpse-or-view-to-validate-your-code.-store-the-result-in-a-variable-at-the-end-of-the-steps." class="section level1">
+<h1><span class="header-section-number">20</span> All actions are chained with the pipe already. You can perform each step separately and use glimpse() or View() to validate your code. Store the result in a variable at the end of the steps.</h1>
+<p>bike_orderlines_wrangled_tbl &lt;- bike_orderlines_joined_tbl %&gt;% # 5.1 Separate category name separate(col = category, into = c(“category.1”, “category.2”, “category.3”), sep = " - ") %&gt;%</p>
+<p># 5.2 Add the total price (price * quantity) # Add a column to a tibble that uses a formula-style calculation of other columns mutate(total.price = price * quantity) %&gt;%</p>
+<p># 5.3 Optional: Reorganize. Using select to grab or remove unnecessary columns # 5.3.1 by exact column name select(-…1, -gender) %&gt;%</p>
+<p># 5.3.2 by a pattern # You can use the select_helpers to define patterns. # Type ?ends_with and click on Select helpers in the documentation select(-ends_with(“.id”)) %&gt;%</p>
+<p># 5.3.3 Actually we need the column “order.id”. Let’s bind it back to the data bind_cols(bike_orderlines_joined_tbl %&gt;% select(order.id)) %&gt;%</p>
+<p># 5.3.4 You can reorder the data by selecting the columns in your desired order. # You can use select_helpers like contains() or everything() select(order.id, contains(“order”), contains(“model”), contains(“category”), price, quantity, total.price, everything()) %&gt;%</p>
+<p># 5.4 Rename columns because we actually wanted underscores instead of the dots # (one at the time vs. multiple at once) rename(bikeshop = name) %&gt;% set_names(names(.) %&gt;% str_replace_all(“\.”, "_"))</p>
+</div>
+<div id="business-insights--" class="section level1">
+<h1><span class="header-section-number">21</span> 6.0 Business Insights —-</h1>
+</div>
+<div id="sales-by-year--" class="section level1">
+<h1><span class="header-section-number">22</span> 6.1 Sales by Year —-</h1>
+<p>library(lubridate) # Step 1 - Manipulate sales_by_year_tbl &lt;- bike_orderlines_wrangled_tbl %&gt;%</p>
+<p># Select columns select(order_date, total_price) %&gt;%</p>
+<p># Add year column mutate(year = year(order_date)) %&gt;%</p>
+<p># Grouping by year and summarizing sales group_by(year) %&gt;% summarize(sales = sum(total_price)) %&gt;%</p>
+<p># Optional: Add a column that turns the numbers into a currency format # (makes it in the plot optically more appealing) # mutate(sales_text = scales::dollar(sales)) &lt;- Works for dollar values mutate(sales_text = scales::dollar(sales, big.mark = “.”, decimal.mark = “,”, prefix = "“, suffix =” €"))</p>
+<p>sales_by_year_tbl ## # A tibble: 5 x 3 ## year sales sales_text<br />
+## <dbl> <dbl> <chr><br />
+## 1 2015 9930282 9.930.282 € ## 2 2016 10730507 10.730.507 € ## 3 2017 14510291 14.510.291 € ## 4 2018 12241853 12.241.853 € ## 5 2019 15017875 15.017.875 €</p>
+</div>
+<div id="step-2---visualize" class="section level1">
+<h1><span class="header-section-number">23</span> Step 2 - Visualize</h1>
+<p>sales_by_year_tbl %&gt;%</p>
+<p># Setup canvas with the columns year (x-axis) and sales (y-axis) ggplot(aes(x = year, y = sales)) +</p>
+<p># Geometries geom_col(fill = “#2DC6D6”) + # Use geom_col for a bar plot geom_label(aes(label = sales_text)) + # Adding labels to the bars geom_smooth(method = “lm”, se = FALSE) + # Adding a trendline</p>
+<p># Formatting # scale_y_continuous(labels = scales::dollar) + # Change the y-axis. # Again, we have to adjust it for euro values scale_y_continuous(labels = scales::dollar_format(big.mark = “.”, decimal.mark = “,”, prefix = "“, suffix =” €“)) + labs( title =”Revenue by year“, subtitle =”Upward Trend“, x =”“, # Override defaults for x and y y =”Revenue" )</p>
+</div>
+<div id="sales-by-year-and-category-2--" class="section level1">
+<h1><span class="header-section-number">24</span> 6.2 Sales by Year and Category 2 —-</h1>
+</div>
+<div id="step-1---manipulate" class="section level1">
+<h1><span class="header-section-number">25</span> Step 1 - Manipulate</h1>
+<p>sales_by_year_cat_1_tbl &lt;- bike_orderlines_wrangled_tbl %&gt;%</p>
+<p># Select columns and add a year select(order_date, total_price, category_1) %&gt;% mutate(year = year(order_date)) %&gt;%</p>
+<p># Group by and summarize year and main catgegory group_by(year, category_1) %&gt;% summarise(sales = sum(total_price)) %&gt;% ungroup() %&gt;%</p>
+<p># Format $ Text mutate(sales_text = scales::dollar(sales, big.mark = “.”, decimal.mark = “,”, prefix = "“, suffix =” €"))</p>
+<p>sales_by_year_cat_1_tbl<br />
+## # A tibble: 25 x 4 ## year category_1 sales sales_text ## <dbl> <chr> <dbl> <chr><br />
+## 1 2015 E-Bikes 1599048 1.599.048 € ## 2 2015 Gravel 663025 663.025 €<br />
+## 3 2015 Hybrid / City 502512 502.512 €<br />
+## 4 2015 Mountain 3254289 3.254.289 € ## 5 2015 Road 3911408 3.911.408 € ## 6 2016 E-Bikes 1916469 1.916.469 € ## 7 2016 Gravel 768794 768.794 €<br />
+## 8 2016 Hybrid / City 512346 512.346 €<br />
+## 9 2016 Mountain 3288733 3.288.733 € ## 10 2016 Road 4244165 4.244.165 € ## # … with 15 more rows # Step 2 - Visualize</p>
+<p>sales_by_year_cat_1_tbl %&gt;%</p>
+<p># Set up x, y, fill ggplot(aes(x = year, y = sales, fill = category_1)) +</p>
+<p># Geometries geom_col() + # Run up to here to get a stacked bar plot</p>
+<p># Facet facet_wrap(~ category_1) +</p>
+<p># Formatting scale_y_continuous(labels = scales::dollar_format(big.mark = “.”, decimal.mark = “,”, prefix = "“, suffix =” €“)) + labs( title =”Revenue by year and main category“, subtitle =”Each product category has an upward trend“, fill =”Main category" # Changes the legend name )</p>
+</div>
+<div id="writing-files--" class="section level1">
+<h1><span class="header-section-number">26</span> 7.0 Writing Files —-</h1>
+</div>
+<div id="excel--" class="section level1">
+<h1><span class="header-section-number">27</span> 7.1 Excel —-</h1>
+<p>install.packages(“writexl”) library(“writexl”) bike_orderlines_wrangled_tbl %&gt;% write_xlsx(“~/Documents/Business Data Basics/DS_101/00_data/01_bike_sales/02_wrangled_data/bike_orderlines.xlsx”)</p>
+</div>
+<div id="csv--" class="section level1">
+<h1><span class="header-section-number">28</span> 7.2 CSV —-</h1>
+<p>bike_orderlines_wrangled_tbl %&gt;% write_csv(“~/Documents/Business Data Basics/DS_101/00_data/01_bike_sales/02_wrangled_data/bike_orderlines.csv”)</p>
+</div>
+<div id="rds--" class="section level1">
+<h1><span class="header-section-number">29</span> 7.3 RDS —-</h1>
+<p>bike_orderlines_wrangled_tbl %&gt;% write_rds(“~/Documents/Business Data Basics/DS_101/00_data/01_bike_sales/02_wrangled_data/bike_orderlines.rds”)</p>
+<p>Notice that whatever you define as a top level header, automatically gets put into the table of contents bar on the left.</p>
+<div id="second-level-header" class="section level2">
+<h2><span class="header-section-number">29.1</span> Second level header</h2>
+<p>You can add more headers by adding more hashtags. These won’t be put into the table of contents</p>
+<div id="third-level-header" class="section level3">
+<h3><span class="header-section-number">29.1.1</span> third level header</h3>
+<p>Here’s an even lower level header</p>
+</div>
+</div>
+</div>
+<div id="my-second-post-note-the-order" class="section level1">
+<h1><span class="header-section-number">30</span> My second post (note the order)</h1>
+<p>Last compiled: 2020-11-23</p>
+<p>I’m writing this tutorial going from the top down. And, this is how it will be printed. So, notice the second post is second in the list. If you want your most recent post to be at the top, then make a new post starting at the top. If you want the oldest first, do, then keep adding to the bottom</p>
+</div>
+<div id="adding-r-stuff" class="section level1">
+<h1><span class="header-section-number">31</span> Adding R stuff</h1>
+<p>So far this is just a blog where you can write in plain text and serve your writing to a webpage. One of the main purposes of this lab journal is to record your progress learning R. The reason I am asking you to use this process is because you can both make a website, and a lab journal, and learn R all in R-studio. This makes everything really convenient and in the same place.</p>
+<p>So, let’s say you are learning how to make a histogram in R. For example, maybe you want to sample 100 numbers from a normal distribution with mean = 0, and standard deviation = 1, and then you want to plot a histogram. You can do this right here by using an r code block, like this:</p>
+<pre class="r"><code>samples &lt;- rnorm(100, mean=0, sd=1)
+hist(samples)</code></pre>
+<p><img src="journal2_files/figure-html/unnamed-chunk-1-1.png" width="672" /></p>
+<p>When you knit this R Markdown document, you will see that the histogram is printed to the page, along with the R code. This document can be set up to hide the R code in the webpage, just delete the comment (hashtag) from the cold folding option in the yaml header up top. For purposes of letting yourself see the code, and me see the code, best to keep it the way that it is. You’ll learn that all of these things and more can be customized in each R code block.</p>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
