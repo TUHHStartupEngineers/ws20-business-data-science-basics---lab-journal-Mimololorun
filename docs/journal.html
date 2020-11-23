@@ -413,7 +413,195 @@ div.tocify {
 <p><strong>IMPORTANT:</strong> You can delete everything in here and start fresh. You might want to start by not deleting anything above this line until you know what that stuff is doing.</p>
 <p>This is an <code>.Rmd</code> file. It is plain text with special features. Any time you write just like this, it will be compiled to normal text in the website. If you put a # in front of your text, it will create a top level-header.</p>
 <div id="my-first-post" class="section level1">
-<h1><span class="header-section-number">1</span> My first post</h1>
+<h1><span class="header-section-number">1</span> My first post:</h1>
+<pre class="rplot"><code>#Challenge 1 -Introduction to the Tidyverse ----
+
+#1.0 Load packages ----
+library(tidyverse)
+library(readxl)
+
+#2.0 Import Files ----
+# A good convention is to use the file name and suffix it with tbl for the data structure tibble
+bikes_tbl      &lt;- read_excel(path = &quot;~/Documents/Github/Business Data Basics/DS_101/00_data/01_bike_sales/01_raw_data/bikes.xlsx&quot;)
+orderlines_tbl &lt;- read_excel(&quot;~/Documents/Github/Business Data Basics/DS_101/00_data/01_bike_sales/01_raw_data/orderlines.xlsx&quot;)
+
+# Not necessary for this analysis, but for the sake of completeness
+bikeshops_tbl  &lt;- read_excel(&quot;~/Documents/Github/Business Data Basics/DS_101/00_data/01_bike_sales/01_raw_data/bikeshops.xlsx&quot;)
+
+#3.0 Joining Data ----
+
+left_join(orderlines_tbl, bikes_tbl, by = c(&quot;product.id&quot; = &quot;bike.id&quot;))
+
+# Chaining commands with the pipe and assigning it to order_items_joined_tbl
+bike_orderlines_joined_tbl &lt;- orderlines_tbl %&gt;%
+  left_join(bikes_tbl, by = c(&quot;product.id&quot; = &quot;bike.id&quot;)) %&gt;%
+  left_join(bikeshops_tbl, by = c(&quot;customer.id&quot; = &quot;bikeshop.id&quot;))
+
+#4.0 Data Wrangling ----
+bike_orderlines_wrangled_tbl &lt;- bike_orderlines_joined_tbl %&gt;%
+  # 4.1 Separate category name
+  separate(col    = category,
+           into   = c(&quot;category.1&quot;, &quot;category.2&quot;, &quot;category.3&quot;),
+           sep    = &quot; - &quot;) %&gt;%
+  
+  # 4.2 Add the total price (price * quantity) 
+  # Add a column to a tibble that uses a formula-style calculation of other columns
+  mutate(total.price = price * quantity) %&gt;%
+  
+  # 4.3 Optional: Reorganize. Using select to grab or remove unnecessary columns
+  # 4.3.1 by exact column name
+  select(-...1, -gender) %&gt;%
+  
+  # 4.3.2 by a pattern
+  # You can use the select_helpers to define patterns. 
+  # Type ?ends_with and click on Select helpers in the documentation
+  select(-ends_with(&quot;.id&quot;)) %&gt;%
+  
+  # 4.3.3 Actually we need the column &quot;order.id&quot;. Let&#39;s bind it back to the data
+  bind_cols(bike_orderlines_joined_tbl %&gt;% select(order.id)) %&gt;% 
+  
+  # 4.3.4 You can reorder the data by selecting the columns in your desired order.
+  # You can use select_helpers like contains() or everything()
+  select(order.id, contains(&quot;order&quot;), contains(&quot;model&quot;), contains(&quot;category&quot;),
+         price, quantity, total.price,
+         everything()) %&gt;%
+  
+  # 4.4 Rename columns because we actually wanted underscores instead of the dots
+  # (one at the time vs. multiple at once)
+  rename(bikeshop = name) %&gt;%
+  set_names(names(.) %&gt;% str_replace_all(&quot;\\.&quot;, &quot;_&quot;))
+
+#Check location multiple features (State and city)
+bike_orderlines_wrangled_tbl$location
+
+#Probably unecessary code but also helps to see just the location column
+bike_orderlines_wrangled_tbl %&gt;% 
+  select(location) %&gt;%
+  filter(str_detect(location, &quot;^Hamburg&quot;)) 
+
+#data wrangling for challenge starts here 
+#4.5 Separate location into state and city
+ bike_orderlines_wrangled2_tbl &lt;- bike_orderlines_wrangled_tbl %&gt;%
+  separate(col    = location,
+           into   = c(&quot;city&quot;, &quot;state&quot;),
+           sep    = (&quot;,&quot;)) 
+ 
+#5.0 Business Insights ----
+#5.1 Sales by location (state) ----
+
+ #step 1: Manipulate
+
+ sales_by_state_tbl &lt;- bike_orderlines_wrangled2_tbl %&gt;%
+   # Select columns
+   select(state, total_price) %&gt;%
+   
+   # Grouping by state and summarizing sales
+   group_by(state) %&gt;% 
+   summarize(sales = sum(total_price)) %&gt;%
+   
+   # Add a column that turns the numbers into a currency format 
+   # mutate(sales_text = scales::dollar(sales)) &lt;- Works for dollar values
+   mutate(sales_text = scales::dollar(sales, big.mark = &quot;.&quot;, 
+                                      decimal.mark = &quot;,&quot;, 
+                                      prefix = &quot;&quot;, 
+                                      suffix = &quot; €&quot;))
+ 
+ sales_by_state_tbl
+ 
+ #Plot bar chart(This is for Rmarkdown. Not sure how to use that just about yet)
+ #```{r plot, fig.width=10, fig.height=7}
+ 
+ #step 2: Visualize
+ #plot a bar chart
+ sales_by_state_tbl %&gt;%
+   
+   # Setup canvas with the columns year (x-axis) and sales (y-axis)
+   ggplot(aes(x = state, y = sales)) +
+   
+   # Geometries
+   geom_col(fill = &quot;#2DC6D6&quot;) + # Use geom_col for a bar plot
+   #geom_label(aes(label = sales_text)) + # Adding labels to the bars
+   #geom_smooth(method = &quot;lm&quot;, se = FALSE) + # Adding a trendline
+   
+   # Formatting
+   # scale_y_continuous(labels = scales::dollar) + # Change the y-axis. 
+   # Again, we have to adjust it for euro values
+   scale_y_continuous(labels = scales::dollar_format(big.mark = &quot;.&quot;, 
+                                                     decimal.mark = &quot;,&quot;, 
+                                                     prefix = &quot;&quot;, 
+                                                     suffix = &quot; €&quot;)) +
+   labs(
+     title    = &quot;Revenue by state&quot;,
+     #subtitle = &quot;Upward Trend&quot;,
+     x = &quot;state&quot;, # Override defaults for x and y
+     y = &quot;Revenue&quot;)+
+   theme(axis.text.x = element_text(angle = 45, hjust = 1))#rotate x-axis 
+   
+#5.2 Sales by location(State) and year ----
+ library(lubridate)
+ #step 1: Manipulate
+ 
+ sales_by_year_by_state_tbl &lt;- bike_orderlines_wrangled2_tbl %&gt;%
+   
+   # Select columns and add a year
+   select(order_date, total_price, state) %&gt;%
+   mutate(year = year(order_date)) %&gt;%
+   
+   # Group by and summarize year and state
+   group_by(year, state) %&gt;%
+   summarise(sales = sum(total_price)) %&gt;%
+   ungroup() %&gt;%
+   
+   # Format $ Text
+   mutate(sales_text = scales::dollar(sales, big.mark = &quot;.&quot;, 
+                                      decimal.mark = &quot;,&quot;, 
+                                      prefix = &quot;&quot;, 
+                                      suffix = &quot; €&quot;)) %&gt;%
+ arrange(desc(sales))
+ 
+ sales_by_year_by_state_tbl
+ 
+ #step 2: visualize
+ 
+ #Plot bar chart(facet_wrap)
+ sales_by_year_by_state_tbl %&gt;%
+   
+   # Set up x, y, fill
+   ggplot(aes(x = year, y = sales, fill = state)) +
+   
+   # Geometries
+   geom_col() + # Run up to here to get a stacked bar plot
+   
+   # Facet
+   facet_wrap(~ state) +
+   
+   # Formatting
+   scale_y_continuous(labels = scales::dollar_format(big.mark = &quot;.&quot;, 
+                                                     decimal.mark = &quot;,&quot;, 
+                                                     prefix = &quot;&quot;, 
+                                                     suffix = &quot; €&quot;)) +
+   labs(
+     title = &quot;Revenue by year and state&quot;,
+     fill = &quot;State&quot; # Changes the legend name
+   )+ 
+   theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+ #6.0 Write files into excel ----
+ #6.1 Excel ----
+ install.packages(&quot;writexl&quot;)
+ library(&quot;writexl&quot;)
+ bike_orderlines_wrangled2_tbl %&gt;%
+   write_xlsx(&quot;~/Documents/GitHub/Business Data Basics/DS_101/00_data/01_bike_sales/02_wrangled_data/bike_orderlines2.xlsx&quot;)
+ 
+ # 6.2 CSV ----
+ bike_orderlines_wrangled2_tbl %&gt;% 
+   write_csv(&quot;~/Documents/GitHub/Business Data Basics/DS_101/00_data/01_bike_sales/02_wrangled_data/bike_orderlines2.csv&quot;)
+ 
+ # 6.3 RDS ----
+ bike_orderlines_wrangled2_tbl %&gt;% 
+   write_rds(&quot;~/Documents/GitHub/Business Data Basics/DS_101/00_data/01_bike_sales/02_wrangled_data/bike_orderlines2.rds&quot;)
+ 
+</code></pre>
 <p>Last compiled: 2020-11-23</p>
 <p>Notice that whatever you define as a top level header, automatically gets put into the table of contents bar on the left.</p>
 <div id="second-level-header" class="section level2">
@@ -436,7 +624,7 @@ div.tocify {
 <p>So, let’s say you are learning how to make a histogram in R. For example, maybe you want to sample 100 numbers from a normal distribution with mean = 0, and standard deviation = 1, and then you want to plot a histogram. You can do this right here by using an r code block, like this:</p>
 <pre class="r"><code>samples &lt;- rnorm(100, mean=0, sd=1)
 hist(samples)</code></pre>
-<p><img src="journal_files/figure-html/unnamed-chunk-1-1.png" width="672" /></p>
+<p><img src="journal_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
 <p>When you knit this R Markdown document, you will see that the histogram is printed to the page, along with the R code. This document can be set up to hide the R code in the webpage, just delete the comment (hashtag) from the cold folding option in the yaml header up top. For purposes of letting yourself see the code, and me see the code, best to keep it the way that it is. You’ll learn that all of these things and more can be customized in each R code block.</p>
 </div>
 
