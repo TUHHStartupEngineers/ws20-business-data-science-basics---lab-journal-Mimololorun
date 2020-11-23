@@ -21,7 +21,7 @@ knitr::opts_chunk$set(message=FALSE,warning=FALSE, cache=TRUE)
 This is an `.Rmd` file. It is plain text with special features. Any time you write just like this, it will be compiled to normal text in the website. If you put a \# in front of your text, it will create a top level-header.
 
 # My first post: 
-```{rplot, fig.width=10, fig.height=7}
+```{r}
 #Challenge 1 -Introduction to the Tidyverse ----
 
 #1.0 Load packages ----
@@ -196,7 +196,6 @@ bike_orderlines_wrangled_tbl %>%
 
  #6.0 Write files into excel ----
  #6.1 Excel ----
- install.packages("writexl")
  library("writexl")
  bike_orderlines_wrangled2_tbl %>%
    write_xlsx("~/Documents/GitHub/Business Data Basics/DS_101/00_data/01_bike_sales/02_wrangled_data/bike_orderlines2.xlsx")
