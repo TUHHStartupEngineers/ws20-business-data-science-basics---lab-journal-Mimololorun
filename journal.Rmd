@@ -214,28 +214,60 @@ Last compiled: `r Sys.Date()`
 
 
 # Challenge 2
+## Data Acquisition
+```{r}
+#Challenge 2.0 : Data Acquisition ----
 
-You can add more headers by adding more hashtags. These won't be put into the table of contents
+#2.1: Data from an API ----
+
+#first ensure required package is installed
+#install.packages("httr")
+library(glue)
+library(httr)
+
+#Trying this API thing using a food website API I found. Hopefully, it works :)
+#appid and appkey already saved in .Renviron file
+edamam_url <- "https://api.edamam.com/search"
+edamam_data<- GET(edamam_url, query = list('q' = "chicken",
+                                            app_id = Sys.getenv("appid"),
+                                           app_key= Sys.getenv("appkey"),
+                                            from = 0,
+                                            to = 3,
+                                            calories = "591-722",
+                                            health = "alcohol-free"
+  ))
+edamam_data
+
+#to show the content of edamam_data
+#edamam_data$content
+#To convert the raw Unicode into a character vector that resembles the JSON format
+#rawToChar(edamam$content)
+
+#To convert into list data use fromJSON() library
+
+library(jsonlite)
+
+#To show the content of the obtained data, change it from a raw data to actual characters
+#and jsonformat and then turn it into a list from Json.
+
+edamam_data_list <- edamam_data %>% 
+                    .$content %>% 
+                    rawToChar() %>% 
+                    fromJSON()
+edamam_data_list
+
+```
+
+
 
 ### third level header
 
-Here's an even lower level header
 
-# My second post (note the order)
+# Challenge 3
+## Data Wrangling
+
+#Challenge 4
+## Data Visualization
 
 Last compiled: `r Sys.Date()`
 
-I'm writing this tutorial going from the top down. And, this is how it will be printed. So, notice the second post is second in the list. If you want your most recent post to be at the top, then make a new post starting at the top. If you want the oldest first, do, then keep adding to the bottom
-
-# Adding R stuff
-
-So far this is just a blog where you can write in plain text and serve your writing to a webpage. One of the main purposes of this lab journal is to record your progress learning R. The reason I am asking you to use this process is because you can both make a website, and a lab journal, and learn R all in R-studio. This makes everything really convenient and in the same place. 
-
-So, let's say you are learning how to make a histogram in R. For example, maybe you want to sample 100 numbers from a normal distribution with mean = 0, and standard deviation = 1, and then you want to plot a histogram. You can do this right here by using an r code block, like this:
-
-```{r}
-samples <- rnorm(100, mean=0, sd=1)
-hist(samples)
-```
-
-When you knit this R Markdown document, you will see that the histogram is printed to the page, along with the R code. This document can be set up to hide the R code in the webpage, just delete the comment (hashtag) from the cold folding option in the yaml header up top. For purposes of letting yourself see the code, and me see the code, best to keep it the way that it is. You'll learn that all of these things and more can be customized in each R code block.
