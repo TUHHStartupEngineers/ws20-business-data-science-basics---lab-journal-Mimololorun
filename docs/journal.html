@@ -654,7 +654,7 @@ bike_orderlines_wrangled_tbl %&gt;%
  # 6.3 RDS ----
  bike_orderlines_wrangled2_tbl %&gt;% 
    write_rds(&quot;~/Documents/GitHub/Business Data Basics/DS_101/00_data/01_bike_sales/02_wrangled_data/bike_orderlines2.rds&quot;)</code></pre>
-<p>Last compiled: 2020-11-25</p>
+<p>Last compiled: 2020-11-27</p>
 </div>
 </div>
 <div id="challenge-2" class="section level1">
@@ -662,20 +662,30 @@ bike_orderlines_wrangled_tbl %&gt;%
 <div id="data-acquisition" class="section level2">
 <h2><span class="header-section-number">2.1</span> Data Acquisition</h2>
 <pre class="r"><code>#Challenge 2.0 : Data Acquisition ----
+#Load Relevant Packages
+
+library(glue)
+library(httr)
+library(purrr)
+library(tidyverse) 
+library(rvest)     
+library(xopen)     
+library(jsonlite)  
+library(stringi)  
+library(jsonlite)
 
 #2.1: Data from an API ----
 
-#first ensure required package is installed
-#install.packages(&quot;httr&quot;)
-library(glue)
-library(httr)
+#Task: Get some data via an API. 
+# use whatever service you want. 
 
-#Trying this API thing using a food website API I found. Hopefully, it works :)
+
+#Trying this API thing using a foodwebsite API I found. Hopefully, it works :)
 #appid and appkey already saved in .Renviron file
 edamam_url &lt;- &quot;https://api.edamam.com/search&quot;
 edamam_data&lt;- GET(edamam_url, query = list(&#39;q&#39; = &quot;chicken&quot;,
                                             app_id = Sys.getenv(&quot;appid&quot;),
-                                           app_key= Sys.getenv(&quot;appkey&quot;),
+                                            app_key = Sys.getenv(&quot;appkey&quot;),
                                             from = 0,
                                             to = 3,
                                             calories = &quot;591-722&quot;,
@@ -683,450 +693,123 @@ edamam_data&lt;- GET(edamam_url, query = list(&#39;q&#39; = &quot;chicken&quot;,
   ))
 edamam_data</code></pre>
 <pre><code>## Response [https://api.edamam.com/search?q=chicken&amp;app_id=9c291d20&amp;app_key=c33bb890134b0839ed0518bc2ccbeb41&amp;from=0&amp;to=3&amp;calories=591-722&amp;health=alcohol-free]
-##   Date: 2020-11-25 20:07
+##   Date: 2020-11-27 18:20
 ##   Status: 200
 ##   Content-Type: application/json;charset=UTF-8
 ##   Size: 29.2 kB</code></pre>
 <pre class="r"><code>#to show the content of edamam_data
-#edamam_data$content
+#edanam_data$content
 #To convert the raw Unicode into a character vector that resembles the JSON format
 #rawToChar(edamam$content)
 
 #To convert into list data use fromJSON() library
-
-library(jsonlite)
-
 #To show the content of the obtained data, change it from a raw data to actual characters
 #and jsonformat and then turn it into a list from Json.
 
 edamam_data_list &lt;- edamam_data %&gt;% 
                     .$content %&gt;% 
                     rawToChar() %&gt;% 
-                    fromJSON()
+                    fromJSON() %&gt;%
+ 
+#Extract totalnutrients from list
+purrr::pluck(&quot;hits&quot;, &quot;recipe&quot;, &quot;totalNutrients&quot;, &quot;FAT&quot;)
 edamam_data_list</code></pre>
-<pre><code>## $q
-## [1] &quot;chicken&quot;
-## 
-## $from
-## [1] 0
-## 
-## $to
-## [1] 3
-## 
-## $more
-## [1] TRUE
-## 
-## $count
-## [1] 10248
-## 
-## $hits
-##                                                                            recipe.uri
-## 1 http://www.edamam.com/ontologies/edamam.owl#recipe_3da1169eb633a5e4607890ebf7dee89f
-## 2 http://www.edamam.com/ontologies/edamam.owl#recipe_d81795fb677ba4f12ab1a104e10aac98
-## 3 http://www.edamam.com/ontologies/edamam.owl#recipe_f662244fb07f5488c6d18290b638be47
-##                         recipe.label
-## 1 Grilled Butterflied Chicken Recipe
-## 2             Citrus Roasted Chicken
-## 3         Fully Salted Roast Chicken
-##                                                              recipe.image
-## 1 https://www.edamam.com/web-img/7a2/7a2f41a7891e8a8f8a087a96930c6463.jpg
-## 2 https://www.edamam.com/web-img/d4b/d4bb1e6c7a6c3738d8e01707eb0ad83d.jpg
-## 3 https://www.edamam.com/web-img/db4/db4c5eb884b31709d4303aa808d55751.jpg
-##   recipe.source
-## 1  Serious Eats
-## 2        Food52
-## 3    Epicurious
-##                                                                           recipe.url
-## 1 http://www.seriouseats.com/recipes/2012/08/grilled-butterflied-chicken-recipe.html
-## 2                             https://food52.com/recipes/3403-citrus-roasted-chicken
-## 3           https://www.epicurious.com/recipes/food/views/fully-salted-roast-chicken
-##                                                                                                                      recipe.shareAs
-## 1 http://www.edamam.com/recipe/grilled-butterflied-chicken-recipe-3da1169eb633a5e4607890ebf7dee89f/chicken/alcohol-free/591-722-cal
-## 2             http://www.edamam.com/recipe/citrus-roasted-chicken-d81795fb677ba4f12ab1a104e10aac98/chicken/alcohol-free/591-722-cal
-## 3         http://www.edamam.com/recipe/fully-salted-roast-chicken-f662244fb07f5488c6d18290b638be47/chicken/alcohol-free/591-722-cal
-##   recipe.yield recipe.dietLabels
-## 1            4          Low-Carb
-## 2            4          Low-Carb
-## 3            4          Low-Carb
-##                                                            recipe.healthLabels
-## 1 Sugar-Conscious, Peanut-Free, Tree-Nut-Free, Alcohol-Free, Immuno-Supportive
-## 2                                     Peanut-Free, Tree-Nut-Free, Alcohol-Free
-## 3 Sugar-Conscious, Peanut-Free, Tree-Nut-Free, Alcohol-Free, Immuno-Supportive
-##    recipe.cautions
-## 1                 
-## 2 Sulfites, FODMAP
-## 3                 
-##                                                                                                     recipe.ingredientLines
-## 1                                          1 whole chicken, 3 1/2 to 4 pounds, Kosher salt and freshly ground black pepper
-## 2 1 chicken, about 3.5 to 4 pounds, 1 lemon, 1 blood orange, 1 tangerine or clementine, Kosher salt, 1/2 cup chicken broth
-## 3                                                                                     1 (3 1/2–4-lb.) chicken, Kosher salt
-##                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   recipe.ingredients
-## 1                                                                                                                                                                                                                               1 whole chicken, 3 1/2 to 4 pounds, Kosher salt and freshly ground black pepper, Kosher salt and freshly ground black pepper, 1700.9713875, 10.205828325, 5.1029141625, https://www.edamam.com/food-img/d33/d338229d774a743f7858f6764e095878.jpg, https://www.edamam.com/food-img/694/6943ea510918c6025795e8dc6e6eaaeb.jpg, https://www.edamam.com/food-img/c6e/c6e5c3bd8d3bc15175d9766971a4d1b2.jpg
-## 2 1 chicken, about 3.5 to 4 pounds, 1 lemon, 1 blood orange, 1 tangerine or clementine, Kosher salt, 1/2 cup chicken broth, 1700.9713875, 58, 131, 74, 12.503828325, 120, https://www.edamam.com/food-img/d33/d338229d774a743f7858f6764e095878.jpg, https://www.edamam.com/food-img/70a/70acba3d4c734d7c70ef4efeed85dc8f.jpg, https://www.edamam.com/food-img/8ea/8ea264a802d6e643c1a340a77863c6ef.jpg, https://www.edamam.com/food-img/4b0/4b0e7d9985b55a58513f61cd02a5003c.jpg, https://www.edamam.com/food-img/694/6943ea510918c6025795e8dc6e6eaaeb.jpg, https://www.edamam.com/food-img/26a/26a10c4cb4e07bab54d8a687ef5ac7d8.jpg
-## 3                                                                                                                                                                                                                                                                                                                                                                                                               1 (3 1/2–4-lb.) chicken, Kosher salt, 1700.9713875, 10.205828325, https://www.edamam.com/food-img/d33/d338229d774a743f7858f6764e095878.jpg, https://www.edamam.com/food-img/694/6943ea510918c6025795e8dc6e6eaaeb.jpg
-##   recipe.calories recipe.totalWeight recipe.totalTime
-## 1        2499.628           1714.219               60
-## 2        2643.190           2093.939              424
-## 3        2486.820           1709.088                0
-##   recipe.totalNutrients.ENERC_KCAL.label
-## 1                                 Energy
-## 2                                 Energy
-## 3                                 Energy
-##   recipe.totalNutrients.ENERC_KCAL.quantity
-## 1                                  2499.628
-## 2                                  2643.190
-## 3                                  2486.820
-##   recipe.totalNutrients.ENERC_KCAL.unit recipe.totalNutrients.FAT.label
-## 1                                  kcal                             Fat
-## 2                                  kcal                             Fat
-## 3                                  kcal                             Fat
-##   recipe.totalNutrients.FAT.quantity recipe.totalNutrients.FAT.unit
-## 1                           174.3594                              g
-## 2                           176.0753                              g
-## 3                           174.1931                              g
-##   recipe.totalNutrients.FASAT.label recipe.totalNutrients.FASAT.quantity
-## 1                         Saturated                             49.92310
-## 2                         Saturated                             50.27954
-## 3                         Saturated                             49.85207
-##   recipe.totalNutrients.FASAT.unit recipe.totalNutrients.FATRN.label
-## 1                                g                             Trans
-## 2                                g                             Trans
-## 3                                g                             Trans
-##   recipe.totalNutrients.FATRN.quantity recipe.totalNutrients.FATRN.unit
-## 1                             1.121961                                g
-## 2                             1.121961                                g
-## 3                             1.121961                                g
-##   recipe.totalNutrients.FAMS.label recipe.totalNutrients.FAMS.quantity
-## 1                  Monounsaturated                            72.21333
-## 2                  Monounsaturated                            72.91053
-## 3                  Monounsaturated                            72.17562
-##   recipe.totalNutrients.FAMS.unit recipe.totalNutrients.FAPU.label
-## 1                               g                  Polyunsaturated
-## 2                               g                  Polyunsaturated
-## 3                               g                  Polyunsaturated
-##   recipe.totalNutrients.FAPU.quantity recipe.totalNutrients.FAPU.unit
-## 1                            37.41106                               g
-## 2                            37.70011                               g
-## 3                            37.36014                               g
-##   recipe.totalNutrients.CHOCDF.label recipe.totalNutrients.CHOCDF.quantity
-## 1                              Carbs                              3.263314
-## 2                              Carbs                             33.928900
-## 3                              Carbs                              0.000000
-##   recipe.totalNutrients.CHOCDF.unit recipe.totalNutrients.FIBTG.label
-## 1                                 g                             Fiber
-## 2                                 g                             Fiber
-## 3                                 g                             Fiber
-##   recipe.totalNutrients.FIBTG.quantity recipe.totalNutrients.FIBTG.unit
-## 1                             1.291037                                g
-## 2                             6.026000                                g
-## 3                             0.000000                                g
-##   recipe.totalNutrients.SUGAR.label recipe.totalNutrients.SUGAR.quantity
-## 1                            Sugars                           0.03265865
-## 2                            Sugars                          22.38770000
-## 3                            Sugars                           0.00000000
-##   recipe.totalNutrients.SUGAR.unit recipe.totalNutrients.PROCNT.label
-## 1                                g                            Protein
-## 2                                g                            Protein
-## 3                                g                            Protein
-##   recipe.totalNutrients.PROCNT.quantity recipe.totalNutrients.PROCNT.unit
-## 1                              215.6691                                 g
-## 2                              220.6613                                 g
-## 3                              215.1389                                 g
-##   recipe.totalNutrients.CHOLE.label recipe.totalNutrients.CHOLE.quantity
-## 1                       Cholesterol                             867.4954
-## 2                       Cholesterol                             871.0954
-## 3                       Cholesterol                             867.4954
-##   recipe.totalNutrients.CHOLE.unit recipe.totalNutrients.NA.label
-## 1                               mg                         Sodium
-## 2                               mg                         Sodium
-## 3                               mg                         Sodium
-##   recipe.totalNutrients.NA.quantity recipe.totalNutrients.NA.unit
-## 1                          3967.442                            mg
-## 2                          4846.234                            mg
-## 3                          3955.575                            mg
-##   recipe.totalNutrients.CA.label recipe.totalNutrients.CA.quantity
-## 1                        Calcium                          151.7933
-## 2                        Calcium                          222.9048
-## 3                        Calcium                          129.1807
-##   recipe.totalNutrients.CA.unit recipe.totalNutrients.MG.label
-## 1                            mg                      Magnesium
-## 2                            mg                      Magnesium
-## 3                            mg                      Magnesium
-##   recipe.totalNutrients.MG.quantity recipe.totalNutrients.MG.unit
-## 1                          240.1395                            mg
-## 2                          261.3718                            mg
-## 3                          231.4133                            mg
-##   recipe.totalNutrients.K.label recipe.totalNutrients.K.quantity
-## 1                     Potassium                         2254.558
-## 2                     Potassium                         2761.016
-## 3                     Potassium                         2186.738
-##   recipe.totalNutrients.K.unit recipe.totalNutrients.FE.label
-## 1                           mg                           Iron
-## 2                           mg                           Iron
-## 3                           mg                           Iron
-##   recipe.totalNutrients.FE.quantity recipe.totalNutrients.FE.unit
-## 1                          10.93232                            mg
-## 2                          11.27744                            mg
-## 3                          10.43673                            mg
-##   recipe.totalNutrients.ZN.label recipe.totalNutrients.ZN.quantity
-## 1                           Zinc                          15.22112
-## 2                           Zinc                          15.50112
-## 3                           Zinc                          15.16037
-##   recipe.totalNutrients.ZN.unit recipe.totalNutrients.P.label
-## 1                            mg                    Phosphorus
-## 2                            mg                    Phosphorus
-## 3                            mg                    Phosphorus
-##   recipe.totalNutrients.P.quantity recipe.totalNutrients.P.unit
-## 1                         1708.354                           mg
-## 2                         1775.851                           mg
-## 3                         1700.291                           mg
-##   recipe.totalNutrients.VITA_RAE.label recipe.totalNutrients.VITA_RAE.quantity
-## 1                            Vitamin A                                475.6086
-## 2                            Vitamin A                                490.4208
-## 3                            Vitamin A                                474.2308
-##   recipe.totalNutrients.VITA_RAE.unit recipe.totalNutrients.VITC.label
-## 1                                  µg                        Vitamin C
-## 2                                  µg                        Vitamin C
-## 3                                  µg                        Vitamin C
-##   recipe.totalNutrients.VITC.quantity recipe.totalNutrients.VITC.unit
-## 1                            18.50657                              mg
-## 2                           155.29057                              mg
-## 3                            18.50657                              mg
-##   recipe.totalNutrients.THIA.label recipe.totalNutrients.THIA.quantity
-## 1                     Thiamin (B1)                           0.6995075
-## 2                     Thiamin (B1)                           0.9368063
-## 3                     Thiamin (B1)                           0.6939963
-##   recipe.totalNutrients.THIA.unit recipe.totalNutrients.RIBF.label
-## 1                              mg                  Riboflavin (B2)
-## 2                              mg                  Riboflavin (B2)
-## 3                              mg                  Riboflavin (B2)
-##   recipe.totalNutrients.RIBF.quantity recipe.totalNutrients.RIBF.unit
-## 1                            1.397178                              mg
-## 2                            1.576193                              mg
-## 3                            1.387993                              mg
-##   recipe.totalNutrients.NIA.label recipe.totalNutrients.NIA.quantity
-## 1                     Niacin (B3)                           78.72281
-## 2                     Niacin (B3)                           81.46334
-## 3                     Niacin (B3)                           78.66448
-##   recipe.totalNutrients.NIA.unit recipe.totalNutrients.VITB6A.label
-## 1                             mg                         Vitamin B6
-## 2                             mg                         Vitamin B6
-## 3                             mg                         Vitamin B6
-##   recipe.totalNutrients.VITB6A.quantity recipe.totalNutrients.VITB6A.unit
-## 1                              4.063161                                mg
-## 2                              4.302012                                mg
-## 3                              4.048312                                mg
-##   recipe.totalNutrients.FOLDFE.label recipe.totalNutrients.FOLDFE.quantity
-## 1          Folate equivalent (total)                              70.26713
-## 2          Folate equivalent (total)                             138.83963
-## 3          Folate equivalent (total)                              69.39963
-##   recipe.totalNutrients.FOLDFE.unit recipe.totalNutrients.FOLFD.label
-## 1                                µg                     Folate (food)
-## 2                                µg                     Folate (food)
-## 3                                µg                     Folate (food)
-##   recipe.totalNutrients.FOLFD.quantity recipe.totalNutrients.FOLFD.unit
-## 1                             70.26713                               µg
-## 2                            138.83963                               µg
-## 3                             69.39963                               µg
-##   recipe.totalNutrients.FOLAC.label recipe.totalNutrients.FOLAC.quantity
-## 1                        Folic acid                                    0
-## 2                        Folic acid                                    0
-## 3                        Folic acid                                    0
-##   recipe.totalNutrients.FOLAC.unit recipe.totalNutrients.VITB12.label
-## 1                               µg                        Vitamin B12
-## 2                               µg                        Vitamin B12
-## 3                               µg                        Vitamin B12
-##   recipe.totalNutrients.VITB12.quantity recipe.totalNutrients.VITB12.unit
-## 1                              3.585648                                µg
-## 2                              3.585648                                µg
-## 3                              3.585648                                µg
-##   recipe.totalNutrients.VITD.label recipe.totalNutrients.VITD.quantity
-## 1                        Vitamin D                            2.313321
-## 2                        Vitamin D                            2.313321
-## 3                        Vitamin D                            2.313321
-##   recipe.totalNutrients.VITD.unit recipe.totalNutrients.TOCPHA.label
-## 1                              µg                          Vitamin E
-## 2                              µg                          Vitamin E
-## 3                              µg                          Vitamin E
-##   recipe.totalNutrients.TOCPHA.quantity recipe.totalNutrients.TOCPHA.unit
-## 1                              3.523052                                mg
-## 2                              3.976782                                mg
-## 3                              3.469982                                mg
-##   recipe.totalNutrients.VITK1.label recipe.totalNutrients.VITK1.quantity
-## 1                         Vitamin K                             25.70338
-## 2                         Vitamin K                             17.58991
-## 3                         Vitamin K                             17.34991
-##   recipe.totalNutrients.VITK1.unit recipe.totalNutrients.WATER.label
-## 1                               µg                             Water
-## 2                               µg                             Water
-## 3                               µg                             Water
-##   recipe.totalNutrients.WATER.quantity recipe.totalNutrients.WATER.unit
-## 1                             763.9324                                g
-## 2                            1103.2003                                g
-## 3                             763.2965                                g
-##   recipe.totalDaily.ENERC_KCAL.label recipe.totalDaily.ENERC_KCAL.quantity
-## 1                             Energy                              124.9814
-## 2                             Energy                              132.1595
-## 3                             Energy                              124.3410
-##   recipe.totalDaily.ENERC_KCAL.unit recipe.totalDaily.FAT.label
-## 1                                 %                         Fat
-## 2                                 %                         Fat
-## 3                                 %                         Fat
-##   recipe.totalDaily.FAT.quantity recipe.totalDaily.FAT.unit
-## 1                       268.2453                          %
-## 2                       270.8850                          %
-## 3                       267.9894                          %
-##   recipe.totalDaily.FASAT.label recipe.totalDaily.FASAT.quantity
-## 1                     Saturated                         249.6155
-## 2                     Saturated                         251.3977
-## 3                     Saturated                         249.2603
-##   recipe.totalDaily.FASAT.unit recipe.totalDaily.CHOCDF.label
-## 1                            %                          Carbs
-## 2                            %                          Carbs
-## 3                            %                          Carbs
-##   recipe.totalDaily.CHOCDF.quantity recipe.totalDaily.CHOCDF.unit
-## 1                          1.087771                             %
-## 2                         11.309633                             %
-## 3                          0.000000                             %
-##   recipe.totalDaily.FIBTG.label recipe.totalDaily.FIBTG.quantity
-## 1                         Fiber                         5.164149
-## 2                         Fiber                        24.104000
-## 3                         Fiber                         0.000000
-##   recipe.totalDaily.FIBTG.unit recipe.totalDaily.PROCNT.label
-## 1                            %                        Protein
-## 2                            %                        Protein
-## 3                            %                        Protein
-##   recipe.totalDaily.PROCNT.quantity recipe.totalDaily.PROCNT.unit
-## 1                          431.3381                             %
-## 2                          441.3225                             %
-## 3                          430.2777                             %
-##   recipe.totalDaily.CHOLE.label recipe.totalDaily.CHOLE.quantity
-## 1                   Cholesterol                         289.1651
-## 2                   Cholesterol                         290.3651
-## 3                   Cholesterol                         289.1651
-##   recipe.totalDaily.CHOLE.unit recipe.totalDaily.NA.label
-## 1                            %                     Sodium
-## 2                            %                     Sodium
-## 3                            %                     Sodium
-##   recipe.totalDaily.NA.quantity recipe.totalDaily.NA.unit
-## 1                      165.3101                         %
-## 2                      201.9264                         %
-## 3                      164.8156                         %
-##   recipe.totalDaily.CA.label recipe.totalDaily.CA.quantity
-## 1                    Calcium                      15.17933
-## 2                    Calcium                      22.29048
-## 3                    Calcium                      12.91807
-##   recipe.totalDaily.CA.unit recipe.totalDaily.MG.label
-## 1                         %                  Magnesium
-## 2                         %                  Magnesium
-## 3                         %                  Magnesium
-##   recipe.totalDaily.MG.quantity recipe.totalDaily.MG.unit
-## 1                      57.17608                         %
-## 2                      62.23138                         %
-## 3                      55.09840                         %
-##   recipe.totalDaily.K.label recipe.totalDaily.K.quantity
-## 1                 Potassium                     47.96931
-## 2                 Potassium                     58.74502
-## 3                 Potassium                     46.52634
-##   recipe.totalDaily.K.unit recipe.totalDaily.FE.label
-## 1                        %                       Iron
-## 2                        %                       Iron
-## 3                        %                       Iron
-##   recipe.totalDaily.FE.quantity recipe.totalDaily.FE.unit
-## 1                      60.73509                         %
-## 2                      62.65243                         %
-## 3                      57.98184                         %
-##   recipe.totalDaily.ZN.label recipe.totalDaily.ZN.quantity
-## 1                       Zinc                      138.3738
-## 2                       Zinc                      140.9193
-## 3                       Zinc                      137.8215
-##   recipe.totalDaily.ZN.unit recipe.totalDaily.P.label
-## 1                         %                Phosphorus
-## 2                         %                Phosphorus
-## 3                         %                Phosphorus
-##   recipe.totalDaily.P.quantity recipe.totalDaily.P.unit
-## 1                     244.0505                        %
-## 2                     253.6930                        %
-## 3                     242.8987                        %
-##   recipe.totalDaily.VITA_RAE.label recipe.totalDaily.VITA_RAE.quantity
-## 1                        Vitamin A                            52.84540
-## 2                        Vitamin A                            54.49120
-## 3                        Vitamin A                            52.69231
-##   recipe.totalDaily.VITA_RAE.unit recipe.totalDaily.VITC.label
-## 1                               %                    Vitamin C
-## 2                               %                    Vitamin C
-## 3                               %                    Vitamin C
-##   recipe.totalDaily.VITC.quantity recipe.totalDaily.VITC.unit
-## 1                        20.56285                           %
-## 2                       172.54508                           %
-## 3                        20.56285                           %
-##   recipe.totalDaily.THIA.label recipe.totalDaily.THIA.quantity
-## 1                 Thiamin (B1)                        58.29229
-## 2                 Thiamin (B1)                        78.06719
-## 3                 Thiamin (B1)                        57.83303
-##   recipe.totalDaily.THIA.unit recipe.totalDaily.RIBF.label
-## 1                           %              Riboflavin (B2)
-## 2                           %              Riboflavin (B2)
-## 3                           %              Riboflavin (B2)
-##   recipe.totalDaily.RIBF.quantity recipe.totalDaily.RIBF.unit
-## 1                        107.4752                           %
-## 2                        121.2456                           %
-## 3                        106.7687                           %
-##   recipe.totalDaily.NIA.label recipe.totalDaily.NIA.quantity
-## 1                 Niacin (B3)                       492.0176
-## 2                 Niacin (B3)                       509.1459
-## 3                 Niacin (B3)                       491.6530
-##   recipe.totalDaily.NIA.unit recipe.totalDaily.VITB6A.label
-## 1                          %                     Vitamin B6
-## 2                          %                     Vitamin B6
-## 3                          %                     Vitamin B6
-##   recipe.totalDaily.VITB6A.quantity recipe.totalDaily.VITB6A.unit
-## 1                          312.5509                             %
-## 2                          330.9240                             %
-## 3                          311.4086                             %
-##   recipe.totalDaily.FOLDFE.label recipe.totalDaily.FOLDFE.quantity
-## 1      Folate equivalent (total)                          17.56678
-## 2      Folate equivalent (total)                          34.70991
-## 3      Folate equivalent (total)                          17.34991
-##   recipe.totalDaily.FOLDFE.unit recipe.totalDaily.VITB12.label
-## 1                             %                    Vitamin B12
-## 2                             %                    Vitamin B12
-## 3                             %                    Vitamin B12
-##   recipe.totalDaily.VITB12.quantity recipe.totalDaily.VITB12.unit
-## 1                           149.402                             %
-## 2                           149.402                             %
-## 3                           149.402                             %
-##   recipe.totalDaily.VITD.label recipe.totalDaily.VITD.quantity
-## 1                    Vitamin D                        15.42214
-## 2                    Vitamin D                        15.42214
-## 3                    Vitamin D                        15.42214
-##   recipe.totalDaily.VITD.unit recipe.totalDaily.TOCPHA.label
-## 1                           %                      Vitamin E
-## 2                           %                      Vitamin E
-## 3                           %                      Vitamin E
-##   recipe.totalDaily.TOCPHA.quantity recipe.totalDaily.TOCPHA.unit
-## 1                          23.48701                             %
-## 2                          26.51188                             %
-## 3                          23.13321                             %
-##   recipe.totalDaily.VITK1.label recipe.totalDaily.VITK1.quantity
-## 1                     Vitamin K                         21.41948
-## 2                     Vitamin K                         14.65826
-## 3                     Vitamin K                         14.45826
-##   recipe.totalDaily.VITK1.unit
-## 1                            %
-## 2                            %
-## 3                            %
-##                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      recipe.digest
-## 1 Fat, Carbs, Protein, Cholesterol, Sodium, Calcium, Magnesium, Potassium, Iron, Zinc, Phosphorus, Vitamin A, Vitamin C, Thiamin (B1), Riboflavin (B2), Niacin (B3), Vitamin B6, Folate equivalent (total), Folate (food), Folic acid, Vitamin B12, Vitamin D, Vitamin E, Vitamin K, Sugar alcohols, Water, FAT, CHOCDF, PROCNT, CHOLE, NA, CA, MG, K, FE, ZN, P, VITA_RAE, VITC, THIA, RIBF, NIA, VITB6A, FOLDFE, FOLFD, FOLAC, VITB12, VITD, TOCPHA, VITK1, Sugar.alcohol, WATER, fatContent, carbohydrateContent, proteinContent, cholesterolContent, sodiumContent, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, 174.359432852797, 3.26331360691875, 215.669053872484, 867.495407625, 3967.44166703011, 151.793319741345, 240.139539843561, 2254.55773984012, 10.9323156721552, 15.2211225909524, 1708.35360332175, 475.608609658875, 18.506568696, 0.6995074733955, 1.3971778976925, 78.7228098723124, 4.06316138246287, 70.267128017625, 70.267128017625, 0, 3.58564768485, 2.313321087, 3.52305193779, 25.7033786365125, 0, 763.932405345435, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, 268.245281311996, 1.08777120230625, 431.338107744967, 289.165135875, 165.310069459588, 15.1793319741345, 57.1760809151336, 47.9693136136195, 60.735087067529, 138.373841735931, 244.05051476025, 52.8454010732083, 20.5628541066667, 58.292289449625, 107.475222899423, 492.017561701952, 312.550875574067, 17.5667820044062, 0, 0, 149.40198686875, 15.42214058, 23.4870129186, 21.4194821970937, 0, 0, g, g, g, mg, mg, mg, mg, mg, mg, mg, mg, µg, mg, mg, mg, mg, mg, µg, µg, µg, µg, µg, mg, µg, g, g, Saturated, Trans, Monounsaturated, Polyunsaturated, FASAT, FATRN, FAMS, FAPU, saturatedFatContent, transFatContent, NA, NA, 49.923101989992, 1.121960727195, 72.2133284500609, 37.4110626383917, TRUE, FALSE, FALSE, FALSE, 249.61550994996, 0, 0, 0, g, g, g, g, Carbs (net), Fiber, Sugars, Sugars, added, CHOCDF.net, FIBTG, SUGAR, SUGAR.added, NA, fiberContent, sugarContent, NA, 1.97227632380625, 1.2910372831125, 0.03265865064, 0, FALSE, TRUE, FALSE, FALSE, 0, 5.16414913245, 0, 0, g, g, g, g
-## 2                                                                                Fat, Carbs, Protein, Cholesterol, Sodium, Calcium, Magnesium, Potassium, Iron, Zinc, Phosphorus, Vitamin A, Vitamin C, Thiamin (B1), Riboflavin (B2), Niacin (B3), Vitamin B6, Folate equivalent (total), Folate (food), Folic acid, Vitamin B12, Vitamin D, Vitamin E, Vitamin K, Sugar alcohols, Water, FAT, CHOCDF, PROCNT, CHOLE, NA, CA, MG, K, FE, ZN, P, VITA_RAE, VITC, THIA, RIBF, NIA, VITB6A, FOLDFE, FOLFD, FOLAC, VITB12, VITD, TOCPHA, VITK1, Sugar.alcohol, WATER, fatContent, carbohydrateContent, proteinContent, cholesterolContent, sodiumContent, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, 176.0752778511, 33.9289, 220.661261091, 871.095407625, 4846.2337822035, 222.904777893315, 261.371780287846, 2761.01579991777, 11.2774365154893, 15.5011202786346, 1775.850998945, 490.420822835, 155.290568696, 0.9368063261, 1.5761926522, 81.463343563435, 4.30201190225, 138.83963261, 138.83963261, 0, 3.58564768485, 2.313321087, 3.9767816305, 17.5899081525, 0, 1103.20032697322, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, 270.885042847846, 11.3096333333333, 441.322522182, 290.365135875, 201.926407591812, 22.2904777893315, 62.2313762590111, 58.7450170195271, 62.6524250860519, 140.919275260315, 253.692999849286, 54.4912025372222, 172.545076328889, 78.0671938416667, 121.245588630769, 509.145897271469, 330.923992480769, 34.7099081525, 0, 0, 149.40198686875, 15.42214058, 26.5118775366667, 14.65825679375, 0, 0, g, g, g, mg, mg, mg, mg, mg, mg, mg, mg, µg, mg, mg, mg, mg, mg, µg, µg, µg, µg, µg, mg, µg, g, g, Saturated, Trans, Monounsaturated, Polyunsaturated, FASAT, FATRN, FAMS, FAPU, saturatedFatContent, transFatContent, NA, NA, 50.27953942485, 1.121960727195, 72.9105279144, 37.70010555505, TRUE, FALSE, FALSE, FALSE, 251.39769712425, 0, 0, 0, g, g, g, g, Carbs (net), Fiber, Sugars, Sugars, added, CHOCDF.net, FIBTG, SUGAR, SUGAR.added, NA, fiberContent, sugarContent, NA, 27.9029, 6.026, 22.3877, 0, FALSE, TRUE, FALSE, FALSE, 0, 24.104, 0, 0, g, g, g, g
-## 3                                                                                                                                           Fat, Carbs, Protein, Cholesterol, Sodium, Calcium, Magnesium, Potassium, Iron, Zinc, Phosphorus, Vitamin A, Vitamin C, Thiamin (B1), Riboflavin (B2), Niacin (B3), Vitamin B6, Folate equivalent (total), Folate (food), Folic acid, Vitamin B12, Vitamin D, Vitamin E, Vitamin K, Sugar alcohols, Water, FAT, CHOCDF, PROCNT, CHOLE, NA, CA, MG, K, FE, ZN, P, VITA_RAE, VITC, THIA, RIBF, NIA, VITB6A, FOLDFE, FOLFD, FOLAC, VITB12, VITD, TOCPHA, VITK1, Sugar.alcohol, WATER, fatContent, carbohydrateContent, proteinContent, cholesterolContent, sodiumContent, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, 174.1930778511, 0, 215.138861091, 867.495407625, 3955.5749422035, 129.18069377752, 231.413276783022, 2186.73777187917, 10.4367303588971, 15.1603699281522, 1700.290998945, 474.230822835, 18.506568696, 0.6939963261, 1.3879926522, 78.664483563435, 4.04831190225, 69.39963261, 69.39963261, 0, 3.58564768485, 2.313321087, 3.4699816305, 17.3499081525, 0, 763.296526272254, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, 267.989350540154, 0, 430.277722182, 289.165135875, 164.815622591812, 12.918069377752, 55.0983992340528, 46.5263355718973, 57.9818353272064, 137.821544801383, 242.898714135, 52.6923136483333, 20.5628541066667, 57.833027175, 106.768665553846, 491.653022271469, 311.408607865385, 17.3499081525, 0, 0, 149.40198686875, 15.42214058, 23.13321087, 14.45825679375, 0, 0, g, g, g, mg, mg, mg, mg, mg, mg, mg, mg, µg, mg, mg, mg, mg, mg, µg, µg, µg, µg, µg, mg, µg, g, g, Saturated, Trans, Monounsaturated, Polyunsaturated, FASAT, FATRN, FAMS, FAPU, saturatedFatContent, transFatContent, NA, NA, 49.85206942485, 1.121960727195, 72.1756179144, 37.36013555505, TRUE, FALSE, FALSE, FALSE, 249.26034712425, 0, 0, 0, g, g, g, g, Carbs (net), Fiber, Sugars, Sugars, added, CHOCDF.net, FIBTG, SUGAR, SUGAR.added, NA, fiberContent, sugarContent, NA, 0, 0, 0, 0, FALSE, TRUE, FALSE, FALSE, 0, 0, 0, 0, g, g, g, g
-##   bookmarked bought
-## 1      FALSE  FALSE
-## 2      FALSE  FALSE
-## 3      FALSE  FALSE</code></pre>
-<div id="third-level-header" class="section level3">
-<h3><span class="header-section-number">2.1.1</span> third level header</h3>
-</div>
+<pre><code>##   label quantity unit
+## 1   Fat 174.3594    g
+## 2   Fat 176.0753    g
+## 3   Fat 174.1931    g</code></pre>
+<pre class="r"><code>#2.2: Web Scraping ----
+
+#Task: Scrape one of the competitor websites of canyon
+#(either https://www.rosebikes.de/ or https://www.radon-bikes.de) 
+#create a small database.
+#database should contain the &quot;model names&quot; and &quot;prices&quot; for 
+#&quot;at least one category&quot;. 
+#Print the first 10 rows of your tibbles. 
+#Do not publish your credentials.
+
+
+#2.2.1 Bicycle Categories ----
+
+#assign the  URL to a variable
+rosebikes_category_url &lt;- &quot;https://www.rosebikes.de/fahrr%C3%A4der&quot;
+xopen(rosebikes_category_url)</code></pre>
+<pre><code>## Running open &#39;https://www.rosebikes.de/fahrr%C3%A4der&#39;</code></pre>
+<pre class="r"><code>#read in the html from the URL
+rosebikes_category_html &lt;- rosebikes_category_url %&gt;%
+                  read_html() 
+
+# Select the correct html nodes and extract the category
+rosebikes_categories_tbl &lt;-rosebikes_category_html %&gt;%
+                           html_nodes(css =&quot;.catalog-navigation__list-item &gt; a &quot;) %&gt;%
+                          html_attr(&quot;title&quot;) %&gt;%
+
+#turn the vector into a table
+enframe(name = &quot;position&quot;, value = &quot;category&quot;)
+rosebikes_categories_tbl</code></pre>
+<pre><code>## # A tibble: 12 x 2
+##    position category   
+##       &lt;int&gt; &lt;chr&gt;      
+##  1        1 MTB        
+##  2        2 Rennrad    
+##  3        3 Gravel     
+##  4        4 E-Bike     
+##  5        5 Cyclocross 
+##  6        6 Trekking   
+##  7        7 Fitness    
+##  8        8 Reise      
+##  9        9 Urban      
+## 10       10 Kinder     
+## 11       11 Sale       
+## 12       12 Bike-Finder</code></pre>
+<pre class="r"><code>###so far everything works well up to here.  
+
+#2.2.2 Model and Price ----
+
+#now to get the models under &quot;kinder&quot;
+rosebikes_kinder_url &lt;- &quot;https://www.rosebikes.de/fahrr%C3%A4der/kinder&quot;
+#xopen(rosebikes_kinder_url)
+
+### read in the html from the URL
+rosebikes_kinder_html &lt;- rosebikes_kinder_url %&gt;%
+                                 read_html()
+
+#get data from JSON format about the model name and price
+rosebikes_kinder_json_tbl &lt;- rosebikes_kinder_html %&gt;%
+                            html_nodes(css = &quot;.catalog-product-tile__link&quot;) %&gt;%
+                           html_attr(&quot;onclick&quot;)
+
+#remove &quot;window.dataLayer.push(&quot; and &quot;)&quot;
+rosebikes_kinder_tbl &lt;- rosebikes_kinder_json_tbl %&gt;%
+  str_remove_all(&quot;window.dataLayer.push\\(&quot;) %&gt;%
+  str_remove(&quot;\\)$&quot;) %&gt;%
+
+# Convert the JSON format to dataframe
+  # map runs that function on each element of the list
+  
+map(fromJSON) %&gt;% # need JSON ### need lists
+  
+# Extract relevant information of the nested list
+map(purrr::pluck, &quot;ecommerce&quot;,&quot;click&quot;,&quot;products&quot;) %&gt;% # Need purrr and expl above
+
+# Stack all lists together
+bind_rows() %&gt;%
+# Convert to tibble so that we have the same data format
+as_tibble()
+rosebikes_kinder_tbl</code></pre>
+<pre><code>## # A tibble: 10 x 8
+##    name      id      price  brand    category         variant    list   position
+##    &lt;chr&gt;     &lt;chr&gt;   &lt;chr&gt;  &lt;chr&gt;    &lt;chr&gt;            &lt;chr&gt;      &lt;chr&gt;  &lt;chr&gt;   
+##  1 &quot;Seeker … 230187… 399.95 Early R… Fahrräder/Kinde… aluminium… categ… 1       
+##  2 &quot;Belter … 230186… 399.95 Early R… Fahrräder/Kinde… aluminium… categ… 2       
+##  3 &quot;NOOB&quot;    227196… 129    ROSE     Fahrräder/Kinde… dark blue… categ… 3       
+##  4 &quot;Belter … 230186… 379.95 Early R… Fahrräder/Kinde… aluminium… categ… 4       
+##  5 &quot;Seeker … 230457… 599    Early R… Fahrräder/Kinde… aluminium… categ… 5       
+##  6 &quot;Belter … 230186… 649    Early R… Fahrräder/Kinde… aluminium… categ… 6       
+##  7 &quot;Seeker … 230457… 724.95 Early R… Fahrräder/Kinde… aluminium… categ… 7       
+##  8 &quot;Seeker … 230187… 399.95 Early R… Fahrräder/Kinde… aluminium… categ… 8       
+##  9 &quot;Belter … 230186… 549.99 Early R… Fahrräder/Kinde… aluminium… categ… 9       
+## 10 &quot;Charger… 230186… 169.95 Early R… Fahrräder/Kinde… aluminium… categ… 10</code></pre>
 </div>
 </div>
 <div id="challenge-3" class="section level1">
@@ -1134,7 +817,7 @@ edamam_data_list</code></pre>
 <div id="data-wrangling" class="section level2">
 <h2><span class="header-section-number">3.1</span> Data Wrangling</h2>
 <p>#Challenge 4 ## Data Visualization</p>
-<p>Last compiled: 2020-11-25</p>
+<p>Last compiled: 2020-11-27</p>
 </div>
 </div>
 
