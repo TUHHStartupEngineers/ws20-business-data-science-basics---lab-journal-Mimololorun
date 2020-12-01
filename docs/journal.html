@@ -654,7 +654,7 @@ bike_orderlines_wrangled_tbl %&gt;%
  # 6.3 RDS ----
  bike_orderlines_wrangled2_tbl %&gt;% 
    write_rds(&quot;~/Documents/GitHub/Business Data Basics/DS_101/00_data/01_bike_sales/02_wrangled_data/bike_orderlines2.rds&quot;)</code></pre>
-<p>Last compiled: 2020-11-28</p>
+<p>Last compiled: 2020-12-01</p>
 </div>
 </div>
 <div id="challenge-2" class="section level1">
@@ -816,8 +816,234 @@ rosebikes_kinder_tbl</code></pre>
 <h1><span class="header-section-number">3</span> Challenge 3</h1>
 <div id="data-wrangling" class="section level2">
 <h2><span class="header-section-number">3.1</span> Data Wrangling</h2>
+<pre class="r"><code>#1. Libraries ----
+library(glue)
+library(httr)
+library(purrr)
+library(tidyverse) 
+library(rvest)     
+library(xopen)     
+library(jsonlite)  
+library(stringi)  
+library(jsonlite)
+library(readxl)
+library(lubridate)
+library(&quot;writexl&quot;)
+library(vroom)
+library(data.table)
+library(tictoc)
+library(magrittr)
+
+# 2.0 DATA IMPORT ----
+
+#Data to Import:assignee,patent_assignee,patent,uspc
+####FOR THE REDUCED DATA
+# patent_tbl:  &quot;id”,  &quot;date”,  &quot;num_claims&quot;
+# patent_assignee_tbl: &quot;patent_id”,   &quot;assignee_id&quot;
+# assignee_tbl:  &quot;id”,  &quot;type”,  &quot;organization&quot;
+# uspc_tbl:  &quot;patent_id”,  &quot;mainclass_id”, &quot;sequence&quot;   
+
+# Question  Table
+# 1 assignee, patent_assignee
+# 2 assignee, patent_assignee, patent
+# 3 assignee, patent_assignee, uspc
+
+#2.1 Assignee Data ----
+assignee_col_types &lt;- list(
+  id = col_character(),
+  type = col_character(),
+  organization = col_character()
+)
+assignee_tbl &lt;- vroom(
+  file       = &quot;~/Documents/GitHub/Business Data Basics/DS_101/00_data/Patent_data_reduced/assignee.tsv&quot;, 
+  delim      = &quot;\t&quot;, 
+  col_types  = assignee_col_types,
+  na         = c(&quot;&quot;, &quot;NA&quot;, &quot;NULL&quot;)
+)
+
+#2.2 Patent_assignee Data ----
+patent_assignee_col_types &lt;- list(
+  patent_id = col_character(),
+  assignee_id = col_character()
+)
+patent_assignee_tbl &lt;- vroom(
+  file       = &quot;~/Documents/GitHub/Business Data Basics/DS_101/00_data/Patent_data_reduced/patent_assignee.tsv&quot;, 
+  delim      = &quot;\t&quot;, 
+  col_types  = patent_assignee_col_types,
+  na         = c(&quot;&quot;, &quot;NA&quot;, &quot;NULL&quot;)
+)
+
+#2.3 Patent Data ----
+patent_col_types &lt;- list(
+  id = col_character(),
+  date = col_date(&quot;%Y-%m-%d&quot;),
+  num_claims = col_double()
+)
+
+patent_tbl &lt;- vroom(
+  file       = &quot;~/Documents/GitHub/Business Data Basics/DS_101/00_data/Patent_data_reduced/patent.tsv&quot;, 
+  delim      = &quot;\t&quot;, 
+  col_types  = patent_col_types,
+  na         = c(&quot;&quot;, &quot;NA&quot;, &quot;NULL&quot;)
+)
+#2.4 USPC data
+uspc_col_types &lt;- list(
+  patent_id = col_character(),
+  mainclass_id = col_character(),
+  sequence = col_character()
+)
+
+uspc_tbl &lt;- vroom(
+  file       = &quot;~/Documents/GitHub/Business Data Basics/DS_101/00_data/Patent_data_reduced/uspc.tsv&quot;, 
+  delim      = &quot;\t&quot;, 
+  col_types  = uspc_col_types,
+  na         = c(&quot;&quot;, &quot;NA&quot;, &quot;NULL&quot;)
+)
+
+#3.0 Check for class and Set as data.table
+#Check class
+class(assignee_tbl)</code></pre>
+<pre><code>## [1] &quot;tbl_df&quot;     &quot;tbl&quot;        &quot;data.frame&quot;</code></pre>
+<pre class="r"><code>class(patent_assignee_tbl)</code></pre>
+<pre><code>## [1] &quot;tbl_df&quot;     &quot;tbl&quot;        &quot;data.frame&quot;</code></pre>
+<pre class="r"><code>class(patent_tbl)</code></pre>
+<pre><code>## [1] &quot;tbl_df&quot;     &quot;tbl&quot;        &quot;data.frame&quot;</code></pre>
+<pre class="r"><code>class(uspc_tbl)</code></pre>
+<pre><code>## [1] &quot;tbl_df&quot;     &quot;tbl&quot;        &quot;data.frame&quot;</code></pre>
+<pre class="r"><code>#SetDT
+setDT(assignee_tbl)
+setDT(patent_assignee_tbl)
+setDT(uspc_tbl)
+setDT(patent_tbl)
+
+
+#QUESTION1:Patent Dominance ----
+#What US company / corporation has the most patents? List the 10 US companies 
+#with the most assigned/granted patents.
+
+#Step1: Join data(assignee and patent assignee)
+#data.table code
+
+# patent_dominance_tbl &lt;- merge(x = assignee_tbl, y = patent_assignee_tbl, 
+#                        by    = c(&quot;id&quot; = &quot;assignee_id&quot;), 
+#                        all.x = TRUE, 
+#                        all.y = FALSE)
+# patent_dominance_tbl %&gt;% glimpse()
+# 
+patent_dominance_tbl &lt;- assignee_tbl %&gt;%
+  left_join(patent_assignee_tbl, by = c(&quot;id&quot; = &quot;assignee_id&quot;))
+patent_dominance_tbl %&gt;% glimpse()</code></pre>
+<pre><code>## Rows: 315,910
+## Columns: 4
+## $ id           &lt;chr&gt; &quot;org_004j997jM9yEdS7z4ReD&quot;, &quot;org_004j997jM9yEdS7z4ReD&quot;, …
+## $ type         &lt;chr&gt; &quot;3&quot;, &quot;3&quot;, &quot;3&quot;, &quot;2&quot;, &quot;2&quot;, &quot;3&quot;, &quot;3&quot;, &quot;2&quot;, &quot;3&quot;, &quot;3&quot;, &quot;2&quot;, &quot;…
+## $ organization &lt;chr&gt; &quot;University of Basel&quot;, &quot;University of Basel&quot;, &quot;Zetkama S…
+## $ patent_id    &lt;chr&gt; &quot;8728438&quot;, &quot;8921361&quot;, &quot;8857791&quot;, &quot;8845559&quot;, &quot;8645286&quot;, &quot;…</code></pre>
+<pre class="r"><code>#Step2: Summarize data
+patent_dominance_tbl %&gt;%
+  group_by(organization) %&gt;%
+  summarise(patent_dominance = n()) %&gt;%
+  ungroup() %&gt;%
+  arrange(desc(patent_dominance))</code></pre>
+<pre><code>## # A tibble: 45,004 x 2
+##    organization                                patent_dominance
+##    &lt;chr&gt;                                                  &lt;int&gt;
+##  1 International Business Machines Corporation             7547
+##  2 Samsung Electronics Co., Ltd.                           5835
+##  3 Canon Kabushiki Kaisha                                  4099
+##  4 Sony Corporation                                        3326
+##  5 Microsoft Corporation                                   3165
+##  6 Google Inc.                                             2668
+##  7 Kabushiki Kaisha Toshiba                                2656
+##  8 QUALCOMM Incorporated                                   2597
+##  9 LG Electronics Inc.                                     2459
+## 10 &lt;NA&gt;                                                    2377
+## # … with 44,994 more rows</code></pre>
+<pre class="r"><code>###Everything works well till here
+
+class(patent_dominance_tbl)</code></pre>
+<pre><code>## [1] &quot;data.table&quot; &quot;data.frame&quot;</code></pre>
+<pre class="r"><code>#QUESTION2: Recent patent acitivity ----
+#What US company had the most patents granted in 2019? List the top 10 companies 
+#with the most new granted patents for 2019.
+
+
+#Step1: Join data(assignee, patent_assignee(patent_dominance_tbl), patent)
+
+#CHANGE COLUMN_NAME IN PATENT_TBL, ID=PATENT_ID
+setnames(patent_tbl, &quot;id&quot;, &quot;patent_id&quot;)
+
+recent_patent_activity_tbl &lt;-  patent_dominance_tbl%&gt;%
+  left_join(patent_tbl, by = &quot;patent_id&quot;)
+
+#Step2: Summarize data by organization and Year
+recent_patent_activity_date_tbl &lt;- recent_patent_activity_tbl %&gt;%
+  separate(col  = date,
+           into = c(&quot;year&quot;, &quot;month&quot;, &quot;day&quot;),
+           sep  = &quot;-&quot;, remove = FALSE)
+
+recent_patent_activity_date_tbl %&gt;%
+  filter(month == 10) %&gt;%
+  group_by(organization) %&gt;%
+  summarise(recent_patent_activity = n()) %&gt;%
+  ungroup() %&gt;%
+  arrange(desc(recent_patent_activity))</code></pre>
+<pre><code>## # A tibble: 8,115 x 2
+##    organization                                recent_patent_activity
+##    &lt;chr&gt;                                                        &lt;int&gt;
+##  1 International Business Machines Corporation                    670
+##  2 Samsung Electronics Co., Ltd.                                  551
+##  3 Canon Kabushiki Kaisha                                         330
+##  4 Sony Corporation                                               275
+##  5 Kabushiki Kaisha Toshiba                                       249
+##  6 Google Inc.                                                    244
+##  7 LG Electronics Inc.                                            226
+##  8 Microsoft Corporation                                          223
+##  9 QUALCOMM Incorporated                                          219
+## 10 &lt;NA&gt;                                                           204
+## # … with 8,105 more rows</code></pre>
+<pre class="r"><code>#QUESTION3: Innovation in Tech ----
+#What is the most innovative tech sector? 
+#For the top 10 companies (worldwide) with the most patents, what are the top 5
+#USPTO tech main classes?
+# This is a 2-step-approach:
+#   
+#   Get the patents of the Top10 companies (not only US corporations) with the most patents.
+# Get the top 5 USPTO tech main classes, their patents are assigned to.
+
+#Step1: Join data(assignee, patent_assignee(patent_dominance_tbl), uspc)
+innovation_in_tech_tbl &lt;-  patent_dominance_tbl%&gt;%
+  left_join(uspc_tbl, by = &quot;patent_id&quot;)
+
+top_10_patents &lt;- innovation_in_tech_tbl %&gt;%
+select(organization, patent_id, mainclass_id) %&gt;%
+group_by(organization,mainclass_id) %&gt;%
+summarise(top_10 = n()) %&gt;%
+ungroup() %&gt;%
+arrange(desc(top_10)) 
+ 
+top_10_patents %&gt;%
+  select(organization,mainclass_id)%&gt;%
+  group_by(mainclass_id) %&gt;%
+summarise(top_5_USPO = n()) %&gt;%
+ungroup %&gt;%
+  arrange(desc(top_5_USPO))</code></pre>
+<pre><code>## # A tibble: 604 x 2
+##    mainclass_id top_5_USPO
+##    &lt;chr&gt;             &lt;int&gt;
+##  1 &lt;NA&gt;              16758
+##  2 435                2474
+##  3 514                2431
+##  4 424                2295
+##  5 705                1775
+##  6 709                1759
+##  7 455                1702
+##  8 340                1667
+##  9 428                1483
+## 10 370                1452
+## # … with 594 more rows</code></pre>
 <p>#Challenge 4 ## Data Visualization</p>
-<p>Last compiled: 2020-11-28</p>
+<p>Last compiled: 2020-12-01</p>
 </div>
 </div>
 
