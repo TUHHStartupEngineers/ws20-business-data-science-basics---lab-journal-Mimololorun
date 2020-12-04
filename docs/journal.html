@@ -654,7 +654,7 @@ bike_orderlines_wrangled_tbl %&gt;%
  # 6.3 RDS ----
  bike_orderlines_wrangled2_tbl %&gt;% 
    write_rds(&quot;~/Documents/GitHub/Business Data Basics/DS_101/00_data/01_bike_sales/02_wrangled_data/bike_orderlines2.rds&quot;)</code></pre>
-<p>Last compiled: 2020-12-02</p>
+<p>Last compiled: 2020-12-04</p>
 </div>
 </div>
 <div id="challenge-2" class="section level1">
@@ -1042,8 +1042,127 @@ ungroup %&gt;%
 ##  9 428                1483
 ## 10 370                1452
 ## # … with 594 more rows</code></pre>
-<p>#Challenge 4 ## Data Visualization</p>
-<p>Last compiled: 2020-12-02</p>
+</div>
+</div>
+<div id="challenge-4" class="section level1">
+<h1><span class="header-section-number">4</span> Challenge 4</h1>
+<div id="data-visualization" class="section level2">
+<h2><span class="header-section-number">4.1</span> Data Visualization</h2>
+<pre class="r"><code>#STEP 1: LOAD LIBRARIES ----
+library(tidyverse)
+library(lubridate)
+library(ggthemes)
+
+#STEP 2: LOAD DATA ----
+covid_data_tbl &lt;- read_csv(&quot;https://opendata.ecdc.europa.eu/covid19/casedistribution/csv&quot;)
+
+#Question 1: Cumulative Covid-19 cases----
+#Goal: Map the time course of the cumulative Covid-19 cases! Your plot should look like this:
+
+#Data Manipulation
+cumulative_cases_tbl &lt;- covid_data_tbl %&gt;%
+  filter(year == 2020) %&gt;%
+  filter(countriesAndTerritories %in% c(&quot;Germany&quot;, &quot;United_Kingdom&quot;, &quot;France&quot;, &quot;Spain&quot;, &quot;United_States_of_America&quot;)) %&gt;%
+  filter(month %in% c(1:11)) %&gt;%
+  select(month,dateRep, countriesAndTerritories, cases) %&gt;%
+  mutate(date = dmy(dateRep)) %&gt;%
+  arrange(date) %&gt;%
+  group_by(countriesAndTerritories) %&gt;%
+  mutate(cum_cases = cumsum(cases)) %&gt;%
+  ungroup () 
+
+#Data Visualization
+cumulative_cases_tbl %&gt;%
+  #Canvas
+  ggplot(aes(x = date, y =cum_cases, color = countriesAndTerritories)) +
+  #Geometries
+  geom_line(size = 0.5, linetype = 1) +
+  
+  # geom_label(aes(label = label_txt),
+  #         hjust = &quot;inward&quot;,
+  #           size  = 2) +
+  # 
+  #Formatting
+  expand_limits(y = 0.0) +
+  scale_x_date(breaks = &quot;1 month&quot;, date_labels = &quot;%B&quot;) +
+  # scale_x_continuous(breaks = cumulative_cases_tbl$month,
+  #                      labels = month(cumulative_cases_tbl$date, label = T)) +
+  scale_y_continuous(labels = scales::dollar_format(scale = 1/1e6,
+                                                    big.mark = &quot;.&quot;,
+                                                    decimal.mark = &quot;,&quot;,
+                                                    prefix = &quot;&quot;,
+                                                    suffix = &quot;M&quot;)) +
+                    # breaks = seq(0, 000000, by =8)) +
+  labs(
+  title = &quot;COVID-19 confirmed cases worldwide&quot;,
+  subtitle = &quot;As of 11/02/2020, Europe had more cases than the USA&quot;,
+  x = &quot;Year 2020&quot;,
+  y = &quot;Cumulative Cases&quot;,
+  color = &quot;Country&quot;)  +  
+  theme_bw() +
+  theme(legend.position  = &quot;bottom&quot;, 
+        legend.direction = &quot;horizontal&quot;,
+        axis.text.x = element_text(angle = 45),
+        plot.title = element_text(face = &quot;bold&quot;)
+        )</code></pre>
+<p><img src="journal_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+<pre class="r"><code>#Question 2 ----
+# Goal: Visualize the distribution of the mortality rate (deaths / population) with
+# geom_map().
+library(maps)
+
+world &lt;- map_data(&quot;world&quot;)
+
+covid_mortality_rate_tbl  &lt;- covid_data_tbl %&gt;%
+  select(countriesAndTerritories, deaths, popData2019, continentExp) %&gt;%
+group_by(countriesAndTerritories, popData2019)%&gt;%
+  summarise(sum_deaths_country = sum(deaths)) %&gt;%
+  mutate(mortality_rate = sum_deaths_country / popData2019) %&gt;%
+    ungroup() %&gt;%
+
+
+# Hint (data wrangling):You have to join the lat/long data and the covid data. Unfortunately, 
+# the countries are not named identically in each dataset. You can adjust the data with the following code chunk
+
+  mutate(across(countriesAndTerritories, str_replace_all, &quot;_&quot;, &quot; &quot;)) %&gt;%
+  mutate(countriesAndTerritories = case_when(
+    
+    countriesAndTerritories == &quot;United Kingdom&quot; ~ &quot;UK&quot;,
+    countriesAndTerritories == &quot;United States of America&quot; ~ &quot;USA&quot;,
+    countriesAndTerritories == &quot;Czechia&quot; ~ &quot;Czech Republic&quot;,
+    TRUE ~ countriesAndTerritories
+    
+  ))
+
+
+Map_tbl &lt;- covid_mortality_rate_tbl %&gt;%
+  left_join(world, by = c( &quot;countriesAndTerritories&quot; = &quot;region&quot;)) %&gt;%
+  rename(region = countriesAndTerritories)
+  
+
+#Data Visualization
+Map_tbl %&gt;%
+  ggplot() +
+  geom_map(aes(map_id = region, fill = mortality_rate ), map = world ) +
+  expand_limits(x= Map_tbl$long, y =Map_tbl$lat) +
+  scale_fill_gradient(low = &quot;#ee4540&quot;, high = &quot;#2d142c&quot;, labels = scales::percent) +
+  
+  labs(
+    title = &quot;Confirmed COVID-19 deaths relative to the size of the population&quot;,
+    subtitle = &quot;More than 1.2 Million confirmed COVID-19 deaths worldwide&quot;,
+    x = &quot; &quot;,
+    y = &quot; &quot;,
+    color = &quot;Mortality Rate&quot;)  +  
+  theme_dark() +
+  theme(legend.position  = &quot;right&quot;, 
+        legend.direction = &quot;vertical&quot;,
+        plot.title = element_text(face = &quot;bold&quot;),
+        axis.title = element_blank(),
+        axis.text  = element_blank(),
+        axis.ticks = element_blank()
+        )</code></pre>
+<p><img src="journal_files/figure-html/unnamed-chunk-4-2.png" width="672" /></p>
+<p>Last compiled: 2020-12-04</p>
 </div>
 </div>
 
