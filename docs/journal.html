@@ -604,7 +604,7 @@ bike_orderlines_wrangled_tbl %&gt;%
  sales_by_year_by_state_tbl</code></pre>
 <pre><code>## # A tibble: 60 x 4
 ##     year state                       sales sales_text 
-##    &lt;dbl&gt; &lt;chr&gt;                       &lt;dbl&gt; &lt;chr&gt;      
+##    &lt;int&gt; &lt;chr&gt;                       &lt;dbl&gt; &lt;chr&gt;      
 ##  1  2019 &quot; North Rhine-Westphalia&quot; 5189507 5.189.507 €
 ##  2  2017 &quot; North Rhine-Westphalia&quot; 4671541 4.671.541 €
 ##  3  2018 &quot; North Rhine-Westphalia&quot; 4601681 4.601.681 €
@@ -654,7 +654,7 @@ bike_orderlines_wrangled_tbl %&gt;%
  # 6.3 RDS ----
  bike_orderlines_wrangled2_tbl %&gt;% 
    write_rds(&quot;~/Documents/GitHub/Business Data Basics/DS_101/00_data/01_bike_sales/02_wrangled_data/bike_orderlines2.rds&quot;)</code></pre>
-<p>Last compiled: 2020-12-04</p>
+<p>Last compiled: 2020-12-05</p>
 </div>
 </div>
 <div id="challenge-2" class="section level1">
@@ -941,11 +941,13 @@ patent_dominance_tbl %&gt;% glimpse()</code></pre>
 ## $ patent_id    &lt;chr&gt; &quot;8728438&quot;, &quot;8921361&quot;, &quot;8857791&quot;, &quot;8845559&quot;, &quot;8645286&quot;, &quot;…</code></pre>
 <pre class="r"><code>#Step2: Summarize data
 patent_dominance_tbl %&gt;%
+  filter(!is.na(organization)) %&gt;%
   group_by(organization) %&gt;%
   summarise(patent_dominance = n()) %&gt;%
   ungroup() %&gt;%
-  arrange(desc(patent_dominance))</code></pre>
-<pre><code>## # A tibble: 45,004 x 2
+  arrange(desc(patent_dominance))%&gt;%
+  slice(1:10)</code></pre>
+<pre><code>## # A tibble: 10 x 2
 ##    organization                                patent_dominance
 ##    &lt;chr&gt;                                                  &lt;int&gt;
 ##  1 International Business Machines Corporation             7547
@@ -957,8 +959,7 @@ patent_dominance_tbl %&gt;%
 ##  7 Kabushiki Kaisha Toshiba                                2656
 ##  8 QUALCOMM Incorporated                                   2597
 ##  9 LG Electronics Inc.                                     2459
-## 10 &lt;NA&gt;                                                    2377
-## # … with 44,994 more rows</code></pre>
+## 10 Panasonic Corporation                                   2218</code></pre>
 <pre class="r"><code>###Everything works well till here
 
 class(patent_dominance_tbl)</code></pre>
@@ -983,12 +984,14 @@ recent_patent_activity_date_tbl &lt;- recent_patent_activity_tbl %&gt;%
            sep  = &quot;-&quot;, remove = FALSE)
 
 recent_patent_activity_date_tbl %&gt;%
+  filter(!is.na(organization)) %&gt;%
   filter(month == 10) %&gt;%
   group_by(organization) %&gt;%
   summarise(recent_patent_activity = n()) %&gt;%
   ungroup() %&gt;%
-  arrange(desc(recent_patent_activity))</code></pre>
-<pre><code>## # A tibble: 8,115 x 2
+  arrange(desc(recent_patent_activity)) %&gt;%
+  slice(1:10)</code></pre>
+<pre><code>## # A tibble: 10 x 2
 ##    organization                                recent_patent_activity
 ##    &lt;chr&gt;                                                        &lt;int&gt;
 ##  1 International Business Machines Corporation                    670
@@ -1000,8 +1003,7 @@ recent_patent_activity_date_tbl %&gt;%
 ##  7 LG Electronics Inc.                                            226
 ##  8 Microsoft Corporation                                          223
 ##  9 QUALCOMM Incorporated                                          219
-## 10 &lt;NA&gt;                                                           204
-## # … with 8,105 more rows</code></pre>
+## 10 Apple Inc.                                                     154</code></pre>
 <pre class="r"><code>#QUESTION3: Innovation in Tech ----
 #What is the most innovative tech sector? 
 #For the top 10 companies (worldwide) with the most patents, what are the top 5
@@ -1024,24 +1026,20 @@ arrange(desc(top_10))
  
 top_10_patents %&gt;%
   select(organization,mainclass_id)%&gt;%
+  filter(!is.na(mainclass_id)) %&gt;%
   group_by(mainclass_id) %&gt;%
 summarise(top_5_USPO = n()) %&gt;%
 ungroup %&gt;%
-  arrange(desc(top_5_USPO))</code></pre>
-<pre><code>## # A tibble: 604 x 2
-##    mainclass_id top_5_USPO
-##    &lt;chr&gt;             &lt;int&gt;
-##  1 &lt;NA&gt;              16758
-##  2 435                2474
-##  3 514                2431
-##  4 424                2295
-##  5 705                1775
-##  6 709                1759
-##  7 455                1702
-##  8 340                1667
-##  9 428                1483
-## 10 370                1452
-## # … with 594 more rows</code></pre>
+  arrange(desc(top_5_USPO)) %&gt;%
+  slice(1:5)</code></pre>
+<pre><code>## # A tibble: 5 x 2
+##   mainclass_id top_5_USPO
+##   &lt;chr&gt;             &lt;int&gt;
+## 1 435                2474
+## 2 514                2431
+## 3 424                2295
+## 4 705                1775
+## 5 709                1759</code></pre>
 </div>
 </div>
 <div id="challenge-4" class="section level1">
@@ -1162,7 +1160,7 @@ Map_tbl %&gt;%
         axis.ticks = element_blank()
         )</code></pre>
 <p><img src="journal_files/figure-html/unnamed-chunk-4-2.png" width="672" /></p>
-<p>Last compiled: 2020-12-04</p>
+<p>Last compiled: 2020-12-05</p>
 </div>
 </div>
 

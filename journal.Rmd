@@ -454,10 +454,12 @@ patent_dominance_tbl %>% glimpse()
 
 #Step2: Summarize data
 patent_dominance_tbl %>%
+  filter(!is.na(organization)) %>%
   group_by(organization) %>%
   summarise(patent_dominance = n()) %>%
   ungroup() %>%
-  arrange(desc(patent_dominance))
+  arrange(desc(patent_dominance))%>%
+  slice(1:10)
 ###Everything works well till here
 
 class(patent_dominance_tbl)
@@ -482,11 +484,13 @@ recent_patent_activity_date_tbl <- recent_patent_activity_tbl %>%
            sep  = "-", remove = FALSE)
 
 recent_patent_activity_date_tbl %>%
+  filter(!is.na(organization)) %>%
   filter(month == 10) %>%
   group_by(organization) %>%
   summarise(recent_patent_activity = n()) %>%
   ungroup() %>%
-  arrange(desc(recent_patent_activity))
+  arrange(desc(recent_patent_activity)) %>%
+  slice(1:10)
 
 
 #QUESTION3: Innovation in Tech ----
@@ -511,10 +515,12 @@ arrange(desc(top_10))
  
 top_10_patents %>%
   select(organization,mainclass_id)%>%
+  filter(!is.na(mainclass_id)) %>%
   group_by(mainclass_id) %>%
 summarise(top_5_USPO = n()) %>%
 ungroup %>%
-  arrange(desc(top_5_USPO))
+  arrange(desc(top_5_USPO)) %>%
+  slice(1:5)
 
 ```
 
